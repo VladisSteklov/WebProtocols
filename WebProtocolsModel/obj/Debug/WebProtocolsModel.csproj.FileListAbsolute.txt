@@ -1,0 +1,5 @@
+C:\Users\Admin\source\repos\WebProtocols\WebProtocolsModel\bin\Debug\WebProtocolsModel.dll
+C:\Users\Admin\source\repos\WebProtocols\WebProtocolsModel\bin\Debug\WebProtocolsModel.pdb
+C:\Users\Admin\source\repos\WebProtocols\WebProtocolsModel\obj\Debug\WebProtocolsModel.csproj.CoreCompileInputs.cache
+C:\Users\Admin\source\repos\WebProtocols\WebProtocolsModel\obj\Debug\WebProtocolsModel.dll
+C:\Users\Admin\source\repos\WebProtocols\WebProtocolsModel\obj\Debug\WebProtocolsModel.pdb
