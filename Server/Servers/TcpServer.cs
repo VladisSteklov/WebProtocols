@@ -4,9 +4,6 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Threading;
-using System.Threading.Tasks;
-using WebProtocolsModel;
 
 namespace Server.Servers
 {
@@ -14,7 +11,7 @@ namespace Server.Servers
 	{
 		private readonly TcpListener server;
 
-		public TcpServer(string serverAddress, int serverPort)
+		public TcpServer(string serverAddress, int serverPort) : base(serverAddress, serverPort)
 		{
 			if (!IPAddress.TryParse(serverAddress, out var iPAddress))
 			{

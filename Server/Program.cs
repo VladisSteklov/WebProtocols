@@ -26,17 +26,22 @@ namespace Server
 			{
 				Console.WriteLine();
 				Console.WriteLine("Выберете тип используемого подключения");
-				Console.WriteLine("t - TCP\t u - UDP\t");
+				Console.WriteLine("t - TCP\nu - UDP\nr - Надежный UDP\ns - Сокет TCP\nd - Сокет UDP");
 
 				key = Console.ReadKey().KeyChar;
-				var serverContext = new ServerContext();
 
 				switch (key)
 				{
 					case 't':
-						return new TcpServer(serverContext.Address, serverContext.Port);
+						return new TcpServer(ServerContext.Address, ServerContext.Port);
 					case 'u':
-						return new UdpServer(serverContext.Address, serverContext.Port);
+						return new UdpServer(ServerContext.Address, ServerContext.Port);
+					case 'r':
+						return new ReliableUdpServer(ServerContext.Address, ServerContext.Port);
+					case 's':
+						return new StreamSocketServer(ServerContext.Address, ServerContext.Port);
+					case 'd':
+						return new DgramSocketServer(ServerContext.Address, ServerContext.Port);
 					default:
 						Console.WriteLine("Неправильно указан ключ операции");
 						break;

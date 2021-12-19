@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Net;
-using System.Threading.Tasks;
+using WebProtocolsModel;
 
 namespace Client.Clients
 {
@@ -9,7 +9,7 @@ namespace Client.Clients
 		protected readonly IPAddress serverAddress;
 		protected readonly int serverPort;
 
-		protected int bufferSize = 512;
+		protected int bufferSize = ServerContext.BufferSize;
 
 		public Client(string serverAddress, int serverPort)
 		{
@@ -21,8 +21,6 @@ namespace Client.Clients
 			this.serverAddress = iPAddress;
 			this.serverPort = serverPort;
 		}
-
-		public void SetBufferSize(int bufferSize) => this.bufferSize = bufferSize;
 
 		public abstract void SendFile(string fileName);
 	}

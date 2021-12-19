@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
@@ -11,9 +12,9 @@ namespace Server.Servers
 {
 	public class UdpServer : Server
 	{
-		private readonly UdpClient server;
+		protected readonly UdpClient server;
 
-		public UdpServer(string serverAddress, int serverPort)
+		public UdpServer(string serverAddress, int serverPort) : base(serverAddress, serverPort)
 		{
 			if (!IPAddress.TryParse(serverAddress, out var iPAddress))
 			{
@@ -38,7 +39,7 @@ namespace Server.Servers
 			Console.WriteLine("Выключение сервера");
 		}
 
-		private WebProtocolsModel.FileInfo GetFileInfo()
+		protected WebProtocolsModel.FileInfo GetFileInfo()
 		{
 			var remoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
 

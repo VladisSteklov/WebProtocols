@@ -9,7 +9,7 @@ namespace Client
 {
 	class Program
 	{
-		private static readonly string fileName = "Example.doc";
+		private static readonly string fileName = "ExampleEn.jpg";
 
 		static void Main(string[] args)
 		{
@@ -55,17 +55,22 @@ namespace Client
 			{
 				Console.WriteLine();
 				Console.WriteLine("Выберете тип используемого подключения");
-				Console.WriteLine("t - TCP\t u - UDP\t");
+				Console.WriteLine("t - TCP\nu - UDP\nr - Надежный UDP\ns - Сокет TCP\nd - Сокет UDP");
 
 				key = Console.ReadKey().KeyChar;
-				var serverContext = new ServerContext();
 
 				switch (key)
 				{
 					case 't':
-						return new TcpClient(serverContext.Address, serverContext.Port);
+						return new TcpClient(ServerContext.Address, ServerContext.Port);
 					case 'u':
-						return new UdpClient(serverContext.Address, serverContext.Port);
+						return new UdpClient(ServerContext.Address, ServerContext.Port);
+					case 'r':
+						return new ReliableUdpClient(ServerContext.Address, ServerContext.Port);
+					case 's':
+						return new StreamSocketClient(ServerContext.Address, ServerContext.Port);
+					case 'd':
+						return new DgramSocketClient(ServerContext.Address, ServerContext.Port);
 					default:
 						Console.WriteLine("Неправильно указан ключ операции");
 						break;

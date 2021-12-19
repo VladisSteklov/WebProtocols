@@ -9,8 +9,8 @@ namespace Client.Clients
 {
 	public class UdpClient : Client
 	{
-		private readonly System.Net.Sockets.UdpClient udpClient = new System.Net.Sockets.UdpClient();
-		private readonly IPEndPoint iPEndPoint;
+		protected readonly System.Net.Sockets.UdpClient udpClient = new System.Net.Sockets.UdpClient();
+		protected readonly IPEndPoint iPEndPoint;
 
 		public UdpClient(string serverAddress, int serverPort) : base(serverAddress, serverPort)
 		{
@@ -24,11 +24,10 @@ namespace Client.Clients
 				SendFileInfo(inputFileStream);
 				SendFile(inputFileStream);
 			}
-
 			udpClient.Close();
 		}
 
-		private void SendFileInfo(FileStream fileStream)
+		protected void SendFileInfo(FileStream fileStream)
 		{
 			var binaryFormatter = new BinaryFormatter();
 			var fileInfo = new WebProtocolsModel.FileInfo
