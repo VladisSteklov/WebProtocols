@@ -21,10 +21,11 @@ namespace Server
 				Console.WriteLine();
 				Console.WriteLine("Выберете тип используемого подключения");
 				Console.WriteLine($"{ServerFactory.TcpServerKey} - TCP\n" +
-				                  $"{ServerFactory.UdpServer} - UDP\n" +
-				                  $"{ServerFactory.ReliableUdpServer} - Надежный UDP\n" +
-				                  $"{ServerFactory.StreamSocketServer} - Сокет TCP\n" +
-				                  $"{ServerFactory.DgramSocketServer} - Сокет UDP");
+				                  $"{ServerFactory.UdpServerKey} - UDP\n" +
+				                  $"{ServerFactory.ReliableSlowUdpServerTcpConfirmServerKey} - Надежный медленный UDP\n" +
+				                  $"{ServerFactory.ReliableFastUdpServerTcpConfirmServerKey} - Надежный быстрый UDP\n" +
+								  $"{ServerFactory.StreamSocketServerKey} - Сокет TCP\n" +
+				                  $"{ServerFactory.DgramSocketServerKey} - Сокет UDP");
 
 				var key = Console.ReadKey().KeyChar;
 

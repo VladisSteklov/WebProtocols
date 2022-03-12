@@ -7,7 +7,7 @@ namespace Client
 {
 	internal class Program
 	{
-		private static readonly string fileName = "ExampleEn.jpg";
+		private static readonly string fileName = "Example.jpg";
 
 		static void Main()
 		{
