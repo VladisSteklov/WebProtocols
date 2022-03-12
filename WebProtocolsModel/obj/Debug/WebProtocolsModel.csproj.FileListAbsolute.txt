@@ -3,3 +3,9 @@ C:\Users\Admin\source\repos\WebProtocols\WebProtocolsModel\bin\Debug\WebProtocol
 C:\Users\Admin\source\repos\WebProtocols\WebProtocolsModel\obj\Debug\WebProtocolsModel.csproj.CoreCompileInputs.cache
 C:\Users\Admin\source\repos\WebProtocols\WebProtocolsModel\obj\Debug\WebProtocolsModel.dll
 C:\Users\Admin\source\repos\WebProtocols\WebProtocolsModel\obj\Debug\WebProtocolsModel.pdb
+C:\Users\hp\Source\Repos\WebProtocols\WebProtocolsModel\bin\Debug\WebProtocolsModel.dll
+C:\Users\hp\Source\Repos\WebProtocols\WebProtocolsModel\bin\Debug\WebProtocolsModel.pdb
+C:\Users\hp\Source\Repos\WebProtocols\WebProtocolsModel\obj\Debug\WebProtocolsModel.csproj.AssemblyReference.cache
+C:\Users\hp\Source\Repos\WebProtocols\WebProtocolsModel\obj\Debug\WebProtocolsModel.csproj.CoreCompileInputs.cache
+C:\Users\hp\Source\Repos\WebProtocols\WebProtocolsModel\obj\Debug\WebProtocolsModel.dll
+C:\Users\hp\Source\Repos\WebProtocols\WebProtocolsModel\obj\Debug\WebProtocolsModel.pdb

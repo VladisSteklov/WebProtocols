@@ -1,63 +1,67 @@
 ﻿using System;
 using System.IO;
-using System.Net;
-using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Threading.Tasks;
+
+using WebProtocolsModel;
 
 namespace Client.Clients
 {
-	public class UdpClient : Client
+	internal class UdpClient : Client
 	{
-		protected readonly System.Net.Sockets.UdpClient udpClient = new System.Net.Sockets.UdpClient();
-		protected readonly IPEndPoint iPEndPoint;
+		protected System.Net.Sockets.UdpClient InternalUdpClient { get; }
 
-		public UdpClient(string serverAddress, int serverPort) : base(serverAddress, serverPort)
+		public UdpClient(string serverIpAddress, int serverPort) : base(serverIpAddress, serverPort)
 		{
-			iPEndPoint = new IPEndPoint(IPAddress.Parse(serverAddress), serverPort);
+			InternalUdpClient = new System.Net.Sockets.UdpClient();
 		}
 
 		public override void SendFile(string fileName)
 		{
 			using (var inputFileStream = new FileStream(fileName, FileMode.Open))
 			{
-				SendFileInfo(inputFileStream);
+				SendFileMetadata(inputFileStream);
 				SendFile(inputFileStream);
 			}
-			udpClient.Close();
+
+			InternalUdpClient.Close();
 		}
 
-		protected void SendFileInfo(FileStream fileStream)
+		
+		protected void SendFileMetadata(FileStream fileStream)
 		{
-			var binaryFormatter = new BinaryFormatter();
-			var fileInfo = new WebProtocolsModel.FileInfo
+			var fileInfo = new FileMetadata
 			{
 				FileName = fileStream.Name,
 				FileSize = fileStream.Length
 			};
 
 			var stream = new MemoryStream();
-			binaryFormatter.Serialize(stream, fileInfo);
+			new BinaryFormatter().Serialize(stream, fileInfo);
 			stream.Position = 0;
 
 			var bytes = new byte[stream.Length];
-			stream.Read(bytes, 0, Convert.ToInt32(stream.Length));
+			_ = stream.Read(bytes, 0, Convert.ToInt32(stream.Length));
 
-			udpClient.Send(bytes, bytes.Length, iPEndPoint);
+			InternalUdpClient.Send(bytes, bytes.Length, ServerIpEndPoint);
 		}
 
-		private void SendFile(FileStream fileStream)
+		private void SendFile(Stream fileStream)
 		{
 			using (var binaryReader = new BinaryReader(fileStream))
 			{
-				byte[] buffer = new byte[bufferSize];
+				var buffer = new byte[BufferSize];
 				int count;
 
-				while ((count = binaryReader.Read(buffer, 0, bufferSize)) > 0)
+				while ((count = binaryReader.Read(buffer, 0, BufferSize)) > 0)
 				{
-					udpClient.Send(buffer, count, iPEndPoint);
+					InternalUdpClient.Send(buffer, count, ServerIpEndPoint);
 				}
 			}
+		}
+
+		public override void Dispose()
+		{
+			InternalUdpClient?.Dispose();
 		}
 	}
 }

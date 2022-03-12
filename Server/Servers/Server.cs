@@ -1,21 +1,25 @@
-﻿using WebProtocolsModel;
+﻿using System;
+using System.Net;
+
+using WebProtocolsModel;
 
 namespace Server.Servers
 {
-	public abstract class Server
+	internal abstract class Server
 	{
-		protected readonly string serverAddress;
+		protected int BufferSize => ServerContext.BufferSize;
 
-		protected readonly int serverPort;
+		protected IPAddress ServerIpAddress { get; }
 
-		protected Server(string serverAddress, int serverPort)
+		protected Server(string serverAddress)
 		{
-			this.serverAddress = serverAddress;
-			this.serverPort = serverPort;
+			if (!IPAddress.TryParse(serverAddress, out var serverIpAddress))
+			{
+				throw new InvalidOperationException($"String {serverAddress} is not ip address");
+			}
+			ServerIpAddress = serverIpAddress;
 		}
 
-
-		protected int bufferSize = ServerContext.BufferSize;
 		public abstract void Process();
 	}
 }

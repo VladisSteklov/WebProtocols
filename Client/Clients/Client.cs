@@ -1,27 +1,28 @@
 ﻿using System;
 using System.Net;
+
 using WebProtocolsModel;
 
 namespace Client.Clients
 {
-	public abstract class Client
+	internal abstract class Client : IDisposable
 	{
-		protected readonly IPAddress serverAddress;
-		protected readonly int serverPort;
+		protected int BufferSize => ServerContext.BufferSize;
 
-		protected int bufferSize = ServerContext.BufferSize;
+		protected IPEndPoint ServerIpEndPoint { get; }
 
-		public Client(string serverAddress, int serverPort)
+		internal Client(string serverIpAddress, int serverPort)
 		{
-			if (!IPAddress.TryParse(serverAddress, out var iPAddress))
+			if (!IPAddress.TryParse(serverIpAddress, out var iPAddress))
 			{
-				throw new InvalidOperationException($"String {serverAddress} is not ip address");
+				throw new InvalidOperationException($"String {serverIpAddress} is not ip address");
 			}
 
-			this.serverAddress = iPAddress;
-			this.serverPort = serverPort;
+			ServerIpEndPoint = new IPEndPoint(iPAddress, serverPort);
 		}
 
 		public abstract void SendFile(string fileName);
+
+		public abstract void Dispose();
 	}
 }

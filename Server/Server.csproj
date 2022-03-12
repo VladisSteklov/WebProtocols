@@ -45,7 +45,10 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Servers\DgramSocketServer.cs" />
+    <Compile Include="Servers\ReliableUdpServer.cs" />
     <Compile Include="Servers\Server.cs" />
+    <Compile Include="Servers\StreamSocketServer.cs" />
     <Compile Include="Servers\TcpServer.cs" />
     <Compile Include="Servers\UdpServer.cs" />
   </ItemGroup>

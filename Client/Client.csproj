@@ -44,6 +44,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Clients\Client.cs" />
+    <Compile Include="Clients\DeliveryConfirmationManager.cs" />
+    <Compile Include="Clients\DgramSocketClient.cs" />
+    <Compile Include="Clients\ReliableUdpClient.cs" />
+    <Compile Include="Clients\StreamSocketClient.cs" />
     <Compile Include="Clients\TcpClient.cs" />
     <Compile Include="Clients\UdpClient.cs" />
     <Compile Include="Program.cs" />

@@ -1,31 +1,23 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
-using System.Threading.Tasks;
+using WebProtocolsModel;
 
 namespace Server.Servers
 {
-	public class DgramSocketServer : Server
+	internal class DgramSocketServer : Server
 	{
-		private readonly Socket socket;
+		private readonly Socket _socket;
 
-		private readonly IPEndPoint ipPoint;
+		private readonly IPEndPoint _ipEndPoint;
 
-		public DgramSocketServer(string serverAddress, int serverPort) : base(serverAddress, serverPort)
+		internal DgramSocketServer(string serverAddress, int serverPort) : base(serverAddress)
 		{
-			if (!IPAddress.TryParse(serverAddress, out var remoteIPAddress))
-			{
-				throw new InvalidOperationException($"String {serverAddress} is not ip address");
-			}
-
-			ipPoint = new IPEndPoint(remoteIPAddress, serverPort);
-			socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+			_ipEndPoint = new IPEndPoint(ServerIpAddress, serverPort);
+			_socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
 		}
 
 		public override void Process()
@@ -34,10 +26,10 @@ namespace Server.Servers
 			Console.WriteLine("Старт сервера");
 			Console.WriteLine();
 
-			socket.Bind(ipPoint);
+			_socket.Bind(_ipEndPoint);
 
 			EndPoint remoteIp = new IPEndPoint(IPAddress.Any, 0);
-			var fileInfo = GetFileInfo(ref remoteIp);
+			var fileInfo = GetFileMetadata(ref remoteIp);
 
 			Console.WriteLine("Пришел запрос на сервер");
 			var stopwatch = new Stopwatch();
@@ -48,39 +40,41 @@ namespace Server.Servers
 			stopwatch.Stop();
 			Console.WriteLine($"Файл сохранен на сервере за {stopwatch.ElapsedMilliseconds} милисекунд");
 
-			socket.Shutdown(SocketShutdown.Receive);
-			socket.Close();
+			_socket.Shutdown(SocketShutdown.Receive);
+			_socket.Close();
 
 			Console.WriteLine("Выключение сервера");
 		}
 
-		private WebProtocolsModel.FileInfo GetFileInfo(ref EndPoint remoteIp)
+		private FileMetadata GetFileMetadata(ref EndPoint remoteIp)
 		{
 			var binaryFormatter = new BinaryFormatter();
 
-			byte[] buffer = new byte[bufferSize];
+			var buffer = new byte[BufferSize];
 
-			socket.ReceiveFrom(buffer, ref remoteIp);
+			_socket.ReceiveFrom(buffer, ref remoteIp);
 
-			var stream = new MemoryStream(buffer);
-			stream.Position = 0;
+			var stream = new MemoryStream(buffer)
+			{
+				Position = 0
+			};
 
-			var fileInfo = (WebProtocolsModel.FileInfo)binaryFormatter.Deserialize(stream);
+			var fileInfo = (FileMetadata)binaryFormatter.Deserialize(stream);
 			fileInfo.FileName = fileInfo.FileName.Replace(oldValue: "Client", newValue: "Server");
 
 			return fileInfo;
 		}
 
-		private void SaveFile(WebProtocolsModel.FileInfo fileInfo, ref EndPoint remoteIp)
+		private void SaveFile(FileMetadata fileMetadata, ref EndPoint remoteIp)
 		{
-			using (var binaryWritter = new BinaryWriter(new FileStream(fileInfo.FileName, FileMode.Create)))
+			using (var binaryWriter = new BinaryWriter(new FileStream(fileMetadata.FileName, FileMode.Create)))
 			{
-				byte[] buffer = new byte[bufferSize];
+				var buffer = new byte[BufferSize];
 
-				for (int i = 0; i < fileInfo.FileSize; i += bufferSize)
+				for (var i = 0; i < fileMetadata.FileSize; i += BufferSize)
 				{
-					socket.ReceiveFrom(buffer, ref remoteIp);
-					binaryWritter.Write(buffer);
+					_socket.ReceiveFrom(buffer, ref remoteIp);
+					binaryWriter.Write(buffer);
 				}
 			}
 		}

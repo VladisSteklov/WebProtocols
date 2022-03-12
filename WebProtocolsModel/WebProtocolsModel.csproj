@@ -41,7 +41,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FileInfo.cs" />
+    <Compile Include="ConfirmMessage.cs" />
+    <Compile Include="FileBatch.cs" />
+    <Compile Include="FileMetadata.cs" />
+    <Compile Include="ImageCompressor.cs" />
+    <Compile Include="ObjectExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServerContext.cs" />
   </ItemGroup>

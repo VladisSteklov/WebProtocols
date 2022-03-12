@@ -8,3 +8,14 @@ C:\Users\Admin\source\repos\WebProtocols\Client\obj\Debug\Client.pdb
 C:\Users\Admin\source\repos\WebProtocols\Client\bin\Debug\WebProtocolsModel.dll
 C:\Users\Admin\source\repos\WebProtocols\Client\bin\Debug\WebProtocolsModel.pdb
 C:\Users\Admin\source\repos\WebProtocols\Client\obj\Debug\Client.csproj.CopyComplete
+C:\Users\hp\Source\Repos\WebProtocols\Client\obj\Debug\Client.csproj.AssemblyReference.cache
+C:\Users\hp\Source\Repos\WebProtocols\Client\obj\Debug\Client.csproj.SuggestedBindingRedirects.cache
+C:\Users\hp\Source\Repos\WebProtocols\Client\obj\Debug\Client.csproj.CoreCompileInputs.cache
+C:\Users\hp\Source\Repos\WebProtocols\Client\obj\Debug\Client.exe
+C:\Users\hp\Source\Repos\WebProtocols\Client\obj\Debug\Client.pdb
+C:\Users\hp\Source\Repos\WebProtocols\Client\bin\Debug\Client.exe.config
+C:\Users\hp\Source\Repos\WebProtocols\Client\bin\Debug\Client.exe
+C:\Users\hp\Source\Repos\WebProtocols\Client\bin\Debug\Client.pdb
+C:\Users\hp\Source\Repos\WebProtocols\Client\bin\Debug\WebProtocolsModel.dll
+C:\Users\hp\Source\Repos\WebProtocols\Client\bin\Debug\WebProtocolsModel.pdb
+C:\Users\hp\Source\Repos\WebProtocols\Client\obj\Debug\Client.csproj.CopyComplete

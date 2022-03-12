@@ -1,33 +1,30 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using System.Net;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
 
+using WebProtocolsModel;
+
 namespace Server.Servers
 {
-	public class TcpServer : Server
+	internal class TcpServer : Server
 	{
-		private readonly TcpListener server;
+		private readonly TcpListener _server;
 
-		public TcpServer(string serverAddress, int serverPort) : base(serverAddress, serverPort)
+		internal TcpServer(string serverAddress, int serverPort) : base(serverAddress)
 		{
-			if (!IPAddress.TryParse(serverAddress, out var iPAddress))
-			{
-				throw new InvalidOperationException($"String {serverAddress} is not ip address");
-			}
-
-			server = new TcpListener(iPAddress, serverPort);
+			_server = new TcpListener(ServerIpAddress, serverPort);
 		}
 
 		public override void Process()
 		{
 			Console.WriteLine();
 			Console.WriteLine("Старт сервера");
-			server.Start();
 
-			var client = server.AcceptTcpClient();
+			_server.Start();
+			var client = _server.AcceptTcpClient();
+
 			Console.WriteLine();
 			Console.WriteLine("Пришел запрос на сервер");
 
@@ -36,36 +33,36 @@ namespace Server.Servers
 
 			var networkStream = client.GetStream();
 
-			var fileInfo = GetFileInfo(networkStream);
+			var fileInfo = GetFileMetadata(networkStream);
 			SaveFile(networkStream, fileInfo);
 
 			stopwatch.Stop();
 			Console.WriteLine($"Файл сохранен на сервере за {stopwatch.ElapsedMilliseconds} милисекунд");
 
-			server.Stop();
+			_server.Stop();
 			Console.WriteLine("Выключение сервера");
 		}
 
-		private WebProtocolsModel.FileInfo GetFileInfo(NetworkStream networkStream)
+		private static FileMetadata GetFileMetadata(Stream networkStream)
 		{
 			var binaryFormatter = new BinaryFormatter();
 
-			var fileInfo = (WebProtocolsModel.FileInfo)binaryFormatter.Deserialize(networkStream);
+			var fileInfo = (FileMetadata)binaryFormatter.Deserialize(networkStream);
 			fileInfo.FileName = fileInfo.FileName.Replace(oldValue: "Client", newValue: "Server");
 
 			return fileInfo;
 		}
 
-		private void SaveFile(NetworkStream networkStream, WebProtocolsModel.FileInfo fileInfo)
+		private void SaveFile(NetworkStream networkStream, FileMetadata fileMetadata)
 		{
-			using (var binaryWritter = new BinaryWriter(new FileStream(fileInfo.FileName, FileMode.Create)))
+			using (var binaryWriter = new BinaryWriter(new FileStream(fileMetadata.FileName, FileMode.Create)))
 			{
-				byte[] buffer = new byte[bufferSize];
+				var buffer = new byte[BufferSize];
 
-				for (int i = 0; i < fileInfo.FileSize; i += bufferSize)
+				for (var i = 0; i < fileMetadata.FileSize; i += BufferSize)
 				{
-					networkStream.Read(buffer, 0, bufferSize);
-					binaryWritter.Write(buffer);
+					_ = networkStream.Read(buffer, 0, BufferSize);
+					binaryWriter.Write(buffer);
 				}
 			}
 		}

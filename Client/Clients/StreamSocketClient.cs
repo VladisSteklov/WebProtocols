@@ -1,27 +1,18 @@
 ﻿using System;
 using System.IO;
-using System.Net;
 using System.Net.Sockets;
 
 using WebProtocolsModel;
 
 namespace Client.Clients
 {
-	public class StreamSocketClient : Client
+	internal class StreamSocketClient : Client
 	{
-		private readonly Socket socket;
+		private readonly Socket _socket;
 
-		private readonly IPEndPoint remoteIpPoint;
-
-		public StreamSocketClient(string serverAddress, int serverPort) : base(serverAddress, serverPort)
+		internal StreamSocketClient(string serverIpAddress, int serverPort) : base(serverIpAddress, serverPort)
 		{
-			if (!IPAddress.TryParse(serverAddress, out var remoteIPAddress))
-			{
-				throw new InvalidOperationException($"String {serverAddress} is not ip address");
-			}
-
-			remoteIpPoint = new IPEndPoint(remoteIPAddress, serverPort);
-			socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+			_socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 		}
 
 		public override void SendFile(string fileName)
@@ -32,41 +23,39 @@ namespace Client.Clients
 			}
 
 			Console.Write("Подключение к удаленной точке\n");
-			socket.Connect(remoteIpPoint);
+			_socket.Connect(ServerIpEndPoint);
 
 			using (var inputFileStream = new FileStream(fileName, FileMode.Open))
 			{
-				SendFileInfo(inputFileStream);
+				SendFileMetadata(inputFileStream);
 				SendFile(inputFileStream);
 				//SendFileWithCompress(inputFileStream);
 			}
 
-			socket.Shutdown(SocketShutdown.Send);
-			socket.Close();
+			_socket.Shutdown(SocketShutdown.Send);
+			_socket.Close();
 		}
 
-		private void SendFileInfo(FileStream fileStream)
+		private void SendFileMetadata(FileStream fileStream)
 		{
-			var fileInfo = new WebProtocolsModel.FileInfo
+			var fileInfo = new FileMetadata
 			{
 				FileName = fileStream.Name,
 				FileSize = fileStream.Length
 			};
 
-			var bytes = SendingDataHelper.PrepareData(fileInfo);
-
-			socket.Send(bytes);
+			_socket.Send(fileInfo.ToByteArray());
 		}
 
-		private void SendFile(FileStream fileStream)
+		private void SendFile(Stream fileStream)
 		{
 			using (var binaryReader = new BinaryReader(fileStream))
 			{
-				byte[] buffer = new byte[bufferSize];
+				var buffer = new byte[BufferSize];
 
-				while (binaryReader.Read(buffer, 0, bufferSize) > 0)
+				while (binaryReader.Read(buffer, 0, BufferSize) > 0)
 				{
-					socket.Send(buffer);
+					_socket.Send(buffer);
 				}
 			}
 		}
@@ -78,13 +67,19 @@ namespace Client.Clients
 
 			using (var binaryReader = new BinaryReader(compressedStream))
 			{
-				byte[] buffer = new byte[bufferSize];
+				var buffer = new byte[BufferSize];
 
-				while (binaryReader.Read(buffer, 0, bufferSize) > 0)
+				while (binaryReader.Read(buffer, 0, BufferSize) > 0)
 				{
-					socket.Send(buffer);
+					_socket.Send(buffer);
 				}
 			}
 		}
+
+		public override void Dispose()
+		{
+			_socket?.Dispose();
+		}
+
 	}
 }

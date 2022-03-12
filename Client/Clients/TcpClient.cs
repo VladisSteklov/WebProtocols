@@ -1,18 +1,18 @@
-﻿using System;
-using System.IO;
-using System.Net;
+﻿using System.IO;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Threading.Tasks;
+
+using WebProtocolsModel;
 
 namespace Client.Clients
 {
-	class TcpClient : Client
+	internal sealed class TcpClient : Client
 	{
-		private readonly System.Net.Sockets.TcpClient tcpClient = new System.Net.Sockets.TcpClient();
+		private readonly System.Net.Sockets.TcpClient _tcpClient;
 
-		public TcpClient(string serverAddress, int serverPort) : base(serverAddress, serverPort)
+		internal TcpClient(string serverIpAddress, int serverPort) : base(serverIpAddress, serverPort)
 		{
+			_tcpClient = new System.Net.Sockets.TcpClient();
 		}
 
 		public override void SendFile(string fileName)
@@ -22,22 +22,24 @@ namespace Client.Clients
 				throw new FileNotFoundException(fileName);
 			}
 
-			tcpClient.Connect(serverAddress, serverPort);
-			var networkStream = tcpClient.GetStream();
+			_tcpClient.Connect(ServerIpEndPoint);
 
-			using (var inputFileStream = new FileStream(fileName, FileMode.Open))
+			using (var networkStream = _tcpClient.GetStream())
 			{
-				SendFileInfo(networkStream, inputFileStream);
-				SendFile(networkStream, inputFileStream);
+				using (var inputFileStream = new FileStream(fileName, FileMode.Open))
+				{
+					SendFileMetadata(networkStream, inputFileStream);
+					SendFile(networkStream, inputFileStream);
+				}
 			}
 
-			tcpClient.Close();		
+			_tcpClient.Close();		
 		}
 
-		private void SendFileInfo(NetworkStream networkStream, FileStream fileStream)
+		private static void SendFileMetadata(NetworkStream networkStream, FileStream fileStream)
 		{
 			var binaryFormatter = new BinaryFormatter();
-			var fileInfo = new WebProtocolsModel.FileInfo
+			var fileInfo = new FileMetadata
 			{
 				FileName = fileStream.Name,
 				FileSize = fileStream.Length
@@ -50,14 +52,19 @@ namespace Client.Clients
 		{
 			using (var binaryReader = new BinaryReader(fileStream))
 			{
-				byte[] buffer = new byte[bufferSize];
+				var buffer = new byte[BufferSize];
 				int count;
 
-				while ((count = binaryReader.Read(buffer, 0, bufferSize)) > 0)
+				while ((count = binaryReader.Read(buffer, 0, BufferSize)) > 0)
 				{
 					networkStream.Write(buffer, 0, count);
 				}
 			}
+		}
+
+		public override void Dispose()
+		{
+			_tcpClient?.Dispose();
 		}
 	}
 }

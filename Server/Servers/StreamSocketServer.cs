@@ -1,32 +1,24 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
-using System.Threading.Tasks;
+
 using WebProtocolsModel;
 
 namespace Server.Servers
 {
-	public class StreamSocketServer : Server
+	internal class StreamSocketServer : Server
 	{
-		private readonly Socket socket;
+		private readonly Socket _socket;
 
-		private readonly IPEndPoint ipPoint;
+		private readonly IPEndPoint _ipEndPoint;
 
-		public StreamSocketServer(string serverAddress, int serverPort) : base(serverAddress, serverPort)
+		internal StreamSocketServer(string serverAddress, int serverPort) : base(serverAddress)
 		{
-			if (!IPAddress.TryParse(serverAddress, out var remoteIPAddress))
-			{
-				throw new InvalidOperationException($"String {serverAddress} is not ip address");
-			}
-
-			ipPoint = new IPEndPoint(remoteIPAddress, serverPort);
-			socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+			_ipEndPoint = new IPEndPoint(ServerIpAddress, serverPort);
+			_socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 		}
 
 		public override void Process()
@@ -34,10 +26,10 @@ namespace Server.Servers
 			Console.WriteLine();
 			Console.WriteLine("Старт сервера");
 
-			socket.Bind(ipPoint);
-			socket.Listen(1);
+			_socket.Bind(_ipEndPoint);
+			_socket.Listen(backlog: 1);
 
-			var handler = socket.Accept();
+			var handler = _socket.Accept();
 
 			Console.WriteLine();
 			Console.WriteLine("Пришел запрос на сервер");
@@ -45,7 +37,7 @@ namespace Server.Servers
 			var stopwatch = new Stopwatch();
 			stopwatch.Start();
 
-			var fileInfo = GetFileInfo(handler);
+			var fileInfo = GetFileMetadata(handler);
 			SaveFile(handler, fileInfo);
 			//SaveFileWithDecompress(handler, fileInfo);
 
@@ -58,49 +50,51 @@ namespace Server.Servers
 			Console.WriteLine("Выключение сервера");
 		}
 
-		private WebProtocolsModel.FileInfo GetFileInfo(Socket handler)
+		private FileMetadata GetFileMetadata(Socket handler)
 		{
 			var binaryFormatter = new BinaryFormatter();
 
-			byte[] buffer = new byte[bufferSize];
+			var buffer = new byte[BufferSize];
 			handler.Receive(buffer);
 
-			var stream = new MemoryStream(buffer);
-			stream.Position = 0;
+			var stream = new MemoryStream(buffer)
+			{
+				Position = 0
+			};
 
-			var fileInfo = (WebProtocolsModel.FileInfo)binaryFormatter.Deserialize(stream);
+			var fileInfo = (FileMetadata)binaryFormatter.Deserialize(stream);
 			fileInfo.FileName = fileInfo.FileName.Replace(oldValue: "Client", newValue: "Server");
 
 			return fileInfo;
 		}
 
-		private void SaveFile(Socket handler, WebProtocolsModel.FileInfo fileInfo)
+		private void SaveFile(Socket handler, FileMetadata fileMetadata)
 		{
-			using (var binaryWritter = new BinaryWriter(new FileStream(fileInfo.FileName, FileMode.Create)))
+			using (var binaryWriter = new BinaryWriter(new FileStream(fileMetadata.FileName, FileMode.Create)))
 			{
-				byte[] buffer = new byte[bufferSize];
+				var buffer = new byte[BufferSize];
 
-				for (int i = 0; i < fileInfo.FileSize; i += bufferSize)
+				for (var i = 0; i < fileMetadata.FileSize; i += BufferSize)
 				{
 					handler.Receive(buffer);
-					binaryWritter.Write(buffer);
+					binaryWriter.Write(buffer);
 				}
 			}
 		}
 
-		private void SaveFileWithDecompress(Socket handler, WebProtocolsModel.FileInfo fileInfo)
+		private void SaveFileWithDecompress(Socket handler, WebProtocolsModel.FileMetadata fileMetadata)
 		{
-			using (var binaryWritter = new BinaryWriter(new MemoryStream()))
+			using (var binaryWriter = new BinaryWriter(new MemoryStream()))
 			{
-				byte[] buffer = new byte[bufferSize];
+				byte[] buffer = new byte[BufferSize];
 
-				for (int i = 0; i < fileInfo.FileSize; i += bufferSize)
+				for (int i = 0; i < fileMetadata.FileSize; i += BufferSize)
 				{
 					handler.Receive(buffer);
-					binaryWritter.Write(buffer);
+					binaryWriter.Write(buffer);
 				}
 
-				ImageCompressor.SaveAndDecompressDeflate(fileInfo.FileName, binaryWritter.BaseStream as MemoryStream);
+				ImageCompressor.SaveAndDecompressDeflate(fileMetadata.FileName, binaryWriter.BaseStream as MemoryStream);
 			}
 		}
 	}
