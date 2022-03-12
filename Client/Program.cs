@@ -1,17 +1,15 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Threading.Tasks;
-using Client.Clients;
 
-using WebProtocolsModel;
+using Client.Clients;
 
 namespace Client
 {
-	class Program
+	internal class Program
 	{
 		private static readonly string fileName = "ExampleEn.jpg";
 
-		static void Main(string[] args)
+		static void Main()
 		{
 			Console.WriteLine("Программа клиента");
 
@@ -50,32 +48,23 @@ namespace Client
 
 		private static Clients.Client SelectClient()
 		{
-			char key;
 			do
 			{
 				Console.WriteLine();
 				Console.WriteLine("Выберете тип используемого подключения");
-				Console.WriteLine("t - TCP\nu - UDP\nr - Надежный UDP\ns - Сокет TCP\nd - Сокет UDP");
+				Console.WriteLine($"{ClientFactory.TcpClientKey} - TCP\n" +
+				                  $"{ClientFactory.UdpClient} - UDP\n" +
+				                  $"{ClientFactory.ReliableUdpClient} - Надежный UDP\n" +
+				                  $"{ClientFactory.StreamSocketClient} - Сокет TCP\n" +
+				                  $"{ClientFactory.DgramSocketClient} - Сокет UDP");
 
-				key = Console.ReadKey().KeyChar;
+				var key = Console.ReadKey().KeyChar;
 
-				switch (key)
-				{
-					case 't':
-						return new TcpClient(ServerContext.Address, ServerContext.Port);
-					case 'u':
-						return new UdpClient(ServerContext.Address, ServerContext.Port);
-					case 'r':
-						return new ReliableUdpClient(ServerContext.Address, ServerContext.Port);
-					case 's':
-						return new StreamSocketClient(ServerContext.Address, ServerContext.Port);
-					case 'd':
-						return new DgramSocketClient(ServerContext.Address, ServerContext.Port);
-					default:
-						Console.WriteLine("Неправильно указан ключ операции");
-						break;
-				}
+				var client = ClientFactory.TryCreateClient(key);
+				if (client != null)
+					return client;
 
+				Console.WriteLine("Ошибка при выборе клиента");
 			}
 			while (true);
 		}

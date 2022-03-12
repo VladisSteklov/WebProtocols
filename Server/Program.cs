@@ -1,15 +1,10 @@
 ﻿using Server.Servers;
 using System;
-using System.Threading;
-using System.Threading.Tasks;
-
-using WebProtocolsModel;
-
 namespace Server
 {
-	class Program
+	internal class Program
 	{
-		static void Main(string[] args)
+		static void Main()
 		{
 			Console.WriteLine("Программа сервера");
 
@@ -21,32 +16,24 @@ namespace Server
 
 		private static Servers.Server SelectServer()
 		{
-			char key;
 			do
 			{
 				Console.WriteLine();
 				Console.WriteLine("Выберете тип используемого подключения");
-				Console.WriteLine("t - TCP\nu - UDP\nr - Надежный UDP\ns - Сокет TCP\nd - Сокет UDP");
+				Console.WriteLine($"{ServerFactory.TcpServerKey} - TCP\n" +
+				                  $"{ServerFactory.UdpServer} - UDP\n" +
+				                  $"{ServerFactory.ReliableUdpServer} - Надежный UDP\n" +
+				                  $"{ServerFactory.StreamSocketServer} - Сокет TCP\n" +
+				                  $"{ServerFactory.DgramSocketServer} - Сокет UDP");
 
-				key = Console.ReadKey().KeyChar;
+				var key = Console.ReadKey().KeyChar;
 
-				switch (key)
-				{
-					case 't':
-						return new TcpServer(ServerContext.Address, ServerContext.Port);
-					case 'u':
-						return new UdpServer(ServerContext.Address, ServerContext.Port);
-					case 'r':
-						return new ReliableUdpServer(ServerContext.Address, ServerContext.Port);
-					case 's':
-						return new StreamSocketServer(ServerContext.Address, ServerContext.Port);
-					case 'd':
-						return new DgramSocketServer(ServerContext.Address, ServerContext.Port);
-					default:
-						Console.WriteLine("Неправильно указан ключ операции");
-						break;
-				}
+				var server = ServerFactory.TryCreateServer(key);
 
+				if (server != null)
+					return server;
+
+				Console.WriteLine("Неправильно указан ключ для выбора сервера");
 			}
 			while (true);
 		}

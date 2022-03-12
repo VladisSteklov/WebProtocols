@@ -36,7 +36,7 @@ namespace Client.Clients
 			_tcpClient.Close();		
 		}
 
-		private static void SendFileMetadata(NetworkStream networkStream, FileStream fileStream)
+		private static void SendFileMetadata(Stream networkStream, FileStream fileStream)
 		{
 			var binaryFormatter = new BinaryFormatter();
 			var fileInfo = new FileMetadata
@@ -48,7 +48,7 @@ namespace Client.Clients
 			binaryFormatter.Serialize(networkStream, fileInfo);
 		}
 
-		private void SendFile(NetworkStream networkStream, FileStream fileStream)
+		private void SendFile(Stream networkStream, FileStream fileStream)
 		{
 			using (var binaryReader = new BinaryReader(fileStream))
 			{

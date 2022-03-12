@@ -48,6 +48,7 @@
     <Compile Include="Servers\DgramSocketServer.cs" />
     <Compile Include="Servers\ReliableUdpServer.cs" />
     <Compile Include="Servers\Server.cs" />
+    <Compile Include="Servers\ServerFactory.cs" />
     <Compile Include="Servers\StreamSocketServer.cs" />
     <Compile Include="Servers\TcpServer.cs" />
     <Compile Include="Servers\UdpServer.cs" />
