@@ -49,14 +49,12 @@ namespace Client.Clients
 
 		private void SendFile(Stream fileStream)
 		{
-			using (var binaryReader = new BinaryReader(fileStream))
-			{
-				var buffer = new byte[BufferSize];
+			using var binaryReader = new BinaryReader(fileStream);
+			var buffer = new byte[BufferSize];
 
-				while (binaryReader.Read(buffer, 0, BufferSize) > 0)
-				{
-					_socket.Send(buffer);
-				}
+			while (binaryReader.Read(buffer, 0, BufferSize) > 0)
+			{
+				_socket.Send(buffer);
 			}
 		}
 
@@ -65,20 +63,18 @@ namespace Client.Clients
 			var compressedStream = ImageCompressor.CompressDeflate(fileStream);
 			compressedStream.Position = 0;
 
-			using (var binaryReader = new BinaryReader(compressedStream))
-			{
-				var buffer = new byte[BufferSize];
+			using var binaryReader = new BinaryReader(compressedStream);
+			var buffer = new byte[BufferSize];
 
-				while (binaryReader.Read(buffer, 0, BufferSize) > 0)
-				{
-					_socket.Send(buffer);
-				}
+			while (binaryReader.Read(buffer, 0, BufferSize) > 0)
+			{
+				_socket.Send(buffer);
 			}
 		}
 
 		public override void Dispose()
 		{
-			_socket?.Dispose();
+			_socket?.Close();
 		}
 
 	}

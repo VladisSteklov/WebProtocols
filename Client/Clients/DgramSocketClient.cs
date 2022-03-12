@@ -33,7 +33,7 @@ namespace Client.Clients
 
 		public override void Dispose()
 		{
-			_socket?.Dispose();
+			_socket?.Close();
 		}
 
 		private void SendFileMetadata(FileStream fileStream)
@@ -49,14 +49,12 @@ namespace Client.Clients
 
 		private void SendFile(Stream fileStream)
 		{
-			using (var binaryReader = new BinaryReader(fileStream))
-			{
-				byte[] buffer = new byte[BufferSize];
+			using var binaryReader = new BinaryReader(fileStream);
+			byte[] buffer = new byte[BufferSize];
 
-				while (binaryReader.Read(buffer, 0, BufferSize) > 0)
-				{
-					_socket.SendTo(buffer, ServerIpEndPoint);
-				}
+			while (binaryReader.Read(buffer, 0, BufferSize) > 0)
+			{
+				_socket.SendTo(buffer, ServerIpEndPoint);
 			}
 		}
 	}

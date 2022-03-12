@@ -20,24 +20,22 @@ namespace Server.Servers
 			var remoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
 			var fileBatches = new Dictionary<int, FileBatch>();
 
-			using (var binaryWriter = new BinaryWriter(new FileStream(fileMetadata.FileName, FileMode.Create)))
+			using var binaryWriter = new BinaryWriter(new FileStream(fileMetadata.FileName, FileMode.Create));
+			for (var i = 0; i < fileMetadata.FileSize; i += BufferSize)
 			{
-				for (var i = 0; i < fileMetadata.FileSize; i += BufferSize)
-				{
-					var data = Server.Receive(ref remoteEndPoint);
+				var data = Server.Receive(ref remoteEndPoint);
 
-					var fileBatch = GetFileBatch(data);
-					fileBatches.Add(fileBatch.Order, fileBatch);
+				var fileBatch = GetFileBatch(data);
+				fileBatches.Add(fileBatch.Order, fileBatch);
 
-					confirmStrategy.Confirm(fileBatch);
-				}
-
-				binaryWriter.Write(
-					fileBatches
-						.OrderBy(b => b.Key)
-						.SelectMany(b => b.Value.Bytes)
-						.ToArray());
+				confirmStrategy.Confirm(fileBatch);
 			}
+
+			binaryWriter.Write(
+				fileBatches
+					.OrderBy(b => b.Key)
+					.SelectMany(b => b.Value.Bytes)
+					.ToArray());
 		}
 	}
 }

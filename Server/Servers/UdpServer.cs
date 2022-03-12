@@ -58,13 +58,11 @@ namespace Server.Servers
 		{
 			var remoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
 
-			using (var binaryWriter = new BinaryWriter(new FileStream(fileMetadata.FileName, FileMode.Create)))
+			using var binaryWriter = new BinaryWriter(new FileStream(fileMetadata.FileName, FileMode.Create));
+			for (var i = 0; i < fileMetadata.FileSize; i += BufferSize)
 			{
-				for (var i = 0; i < fileMetadata.FileSize; i += BufferSize)
-				{
-					var data = Server.Receive(ref remoteEndPoint);
-					binaryWriter.Write(data);
-				}
+				var data = Server.Receive(ref remoteEndPoint);
+				binaryWriter.Write(data);
 			}
 		}
 	}

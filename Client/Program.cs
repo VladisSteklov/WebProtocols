@@ -13,7 +13,7 @@ namespace Client
 		{
 			Console.WriteLine("Программа клиента");
 
-			var client = SelectClient();
+			using var client = SelectClient();
 
 			char key;
 			do
@@ -53,10 +53,11 @@ namespace Client
 				Console.WriteLine();
 				Console.WriteLine("Выберете тип используемого подключения");
 				Console.WriteLine($"{ClientFactory.TcpClientKey} - TCP\n" +
-				                  $"{ClientFactory.UdpClient} - UDP\n" +
-				                  $"{ClientFactory.ReliableUdpClient} - Надежный UDP\n" +
-				                  $"{ClientFactory.StreamSocketClient} - Сокет TCP\n" +
-				                  $"{ClientFactory.DgramSocketClient} - Сокет UDP");
+				                  $"{ClientFactory.UdpClientKey} - UDP\n" +
+				                  $"{ClientFactory.ReliableUdpClientTcpConfirmationKey} - Надежный UDP - подтверждение TCP\n" +
+				                  $"{ClientFactory.ReliableUdpClientUdpConfirmationKey} - Надежный UDP - подтверждение UDP\n" +
+								  $"{ClientFactory.StreamSocketClientKey} - Сокет TCP\n" +
+				                  $"{ClientFactory.DgramSocketClientKey} - Сокет UDP");
 
 				var key = Console.ReadKey().KeyChar;
 

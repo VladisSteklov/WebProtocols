@@ -47,21 +47,19 @@ namespace Client.Clients
 
 		private void SendFile(Stream fileStream)
 		{
-			using (var binaryReader = new BinaryReader(fileStream))
-			{
-				var buffer = new byte[BufferSize];
-				int count;
+			using var binaryReader = new BinaryReader(fileStream);
+			var buffer = new byte[BufferSize];
+			int count;
 
-				while ((count = binaryReader.Read(buffer, 0, BufferSize)) > 0)
-				{
-					InternalUdpClient.Send(buffer, count, ServerIpEndPoint);
-				}
+			while ((count = binaryReader.Read(buffer, 0, BufferSize)) > 0)
+			{
+				InternalUdpClient.Send(buffer, count, ServerIpEndPoint);
 			}
 		}
 
 		public override void Dispose()
 		{
-			InternalUdpClient?.Dispose();
+			InternalUdpClient?.Close();
 		}
 	}
 }

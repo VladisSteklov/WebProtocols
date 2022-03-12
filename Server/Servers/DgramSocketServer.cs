@@ -68,15 +68,13 @@ namespace Server.Servers
 
 		private void SaveFile(FileMetadata fileMetadata, ref EndPoint remoteIp)
 		{
-			using (var binaryWriter = new BinaryWriter(new FileStream(fileMetadata.FileName, FileMode.Create)))
-			{
-				var buffer = new byte[BufferSize];
+			using var binaryWriter = new BinaryWriter(new FileStream(fileMetadata.FileName, FileMode.Create));
+			var buffer = new byte[BufferSize];
 
-				for (var i = 0; i < fileMetadata.FileSize; i += BufferSize)
-				{
-					_socket.ReceiveFrom(buffer, ref remoteIp);
-					binaryWriter.Write(buffer);
-				}
+			for (var i = 0; i < fileMetadata.FileSize; i += BufferSize)
+			{
+				_socket.ReceiveFrom(buffer, ref remoteIp);
+				binaryWriter.Write(buffer);
 			}
 		}
 	}

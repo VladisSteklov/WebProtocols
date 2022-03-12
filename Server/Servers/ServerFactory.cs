@@ -11,26 +11,23 @@ namespace Server.Servers
 		internal const char ReliableFastUdpServerTcpConfirmServerKey = 'f';
 		internal const char StreamSocketServerKey = 's';
 		internal const char DgramSocketServerKey = 'd';
-
+		internal const char ReliableFastUdpServerUdpConfirmServerKey = 'q';
 		internal static Server TryCreateServer(char key)
 		{
-			switch (key)
+			return key switch
 			{
-				case TcpServerKey:
-					return new TcpServer(ServerContext.Address, ServerContext.Port);
-				case UdpServerKey:
-					return new UdpServer(ServerContext.Address, ServerContext.Port);
-				case ReliableSlowUdpServerTcpConfirmServerKey:
-					return new ReliableSlowUdpServerTcpConfirm(ServerContext.Address, ServerContext.Port);
-				case ReliableFastUdpServerTcpConfirmServerKey:
-					return new ReliableFastUdpServerTcpConfirm(ServerContext.Address ,ServerContext.Port);
-				case StreamSocketServerKey:
-					return new StreamSocketServer(ServerContext.Address, ServerContext.Port);
-				case DgramSocketServerKey:
-					return new DgramSocketServer(ServerContext.Address, ServerContext.Port);
-				default:
-					return null;
-			}
+				TcpServerKey => new TcpServer(ServerContext.Address, ServerContext.Port),
+				UdpServerKey => new UdpServer(ServerContext.Address, ServerContext.Port),
+				ReliableSlowUdpServerTcpConfirmServerKey => new ReliableSlowUdpServerTcpConfirm(ServerContext.Address,
+					ServerContext.Port),
+				ReliableFastUdpServerTcpConfirmServerKey => new ReliableFastUdpServerTcpConfirm(ServerContext.Address,
+					ServerContext.Port),
+				StreamSocketServerKey => new StreamSocketServer(ServerContext.Address, ServerContext.Port),
+				DgramSocketServerKey => new DgramSocketServer(ServerContext.Address, ServerContext.Port),
+				ReliableFastUdpServerUdpConfirmServerKey => new ReliableFastUdpServerUdpConfirm(ServerContext.Address,
+					ServerContext.Port),
+				_ => null
+			};
 		}
 	}
 }

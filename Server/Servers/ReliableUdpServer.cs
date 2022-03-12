@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
 using Server.Servers.ConfirmStrategy;
 using Server.Servers.ConfirmStrategy.ConfirmStrategyFactory;
+
 using WebProtocolsModel;
 
 namespace Server.Servers
@@ -22,7 +22,7 @@ namespace Server.Servers
 		public override void Process()
 		{
 			var fileMetadata = GetFileMetadata();
-			var confirmStrategy = _confirmStrategyFactory.CreateStrategy(ServerIpAddress);
+			using var confirmStrategy = _confirmStrategyFactory.CreateStrategy(ServerIpAddress);
 
 			var stopwatch = new Stopwatch();
 			stopwatch.Start();
@@ -33,7 +33,6 @@ namespace Server.Servers
 			Console.WriteLine($"Файл сохранен на сервере за {stopwatch.ElapsedMilliseconds} милисекунд");
 
 			Server.Close();
-			confirmStrategy.StopConfirming();
 			Console.WriteLine("Выключение сервера");
 		}
 

@@ -49,21 +49,19 @@ namespace Client.Clients
 
 		private void SendFile(Stream networkStream, FileStream fileStream)
 		{
-			using (var binaryReader = new BinaryReader(fileStream))
-			{
-				var buffer = new byte[BufferSize];
-				int count;
+			using var binaryReader = new BinaryReader(fileStream);
+			var buffer = new byte[BufferSize];
+			int count;
 
-				while ((count = binaryReader.Read(buffer, 0, BufferSize)) > 0)
-				{
-					networkStream.Write(buffer, 0, count);
-				}
+			while ((count = binaryReader.Read(buffer, 0, BufferSize)) > 0)
+			{
+				networkStream.Write(buffer, 0, count);
 			}
 		}
 
 		public override void Dispose()
 		{
-			_tcpClient?.Dispose();
+			_tcpClient?.Close();
 		}
 	}
 }

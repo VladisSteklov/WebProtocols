@@ -5,28 +5,24 @@ namespace Client.Clients
 	internal static class ClientFactory
 	{
 		internal const char TcpClientKey = 't';
-		internal const char UdpClient = 'u';
-		internal const char ReliableUdpClient = 'r';
-		internal const char StreamSocketClient = 's';
-		internal const char DgramSocketClient = 'd';
+		internal const char UdpClientKey = 'u';
+		internal const char ReliableUdpClientTcpConfirmationKey = 'r';
+		internal const char ReliableUdpClientUdpConfirmationKey = 'q';
+		internal const char StreamSocketClientKey = 's';
+		internal const char DgramSocketClientKey = 'd';
 
 		internal static Client TryCreateClient(char key)
 		{
-			switch(key)
+			return key switch
 			{
-				case TcpClientKey:
-					return new TcpClient(ServerContext.Address, ServerContext.Port);
-				case UdpClient:
-					return new UdpClient(ServerContext.Address, ServerContext.Port);
-				case ReliableUdpClient:
-					return new ReliableUdpClient(ServerContext.Address, ServerContext.Port);
-				case StreamSocketClient:
-					return new StreamSocketClient(ServerContext.Address, ServerContext.Port);
-				case DgramSocketClient:
-					return new DgramSocketClient(ServerContext.Address, ServerContext.Port);
-				default:
-					return null;
-			}
+				TcpClientKey => new TcpClient(ServerContext.Address, ServerContext.Port),
+				UdpClientKey => new UdpClient(ServerContext.Address, ServerContext.Port),
+				ReliableUdpClientTcpConfirmationKey => new ReliableUdpClientTcpConfirmation(ServerContext.Address, ServerContext.Port),
+				ReliableUdpClientUdpConfirmationKey => new ReliableUdpClientUdpConfirmation(ServerContext.Address, ServerContext.Port),
+				StreamSocketClientKey => new StreamSocketClient(ServerContext.Address, ServerContext.Port),
+				DgramSocketClientKey => new DgramSocketClient(ServerContext.Address, ServerContext.Port),
+				_ => null
+			};
 		}
 	}
 }

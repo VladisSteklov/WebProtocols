@@ -22,6 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -31,6 +32,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -45,9 +47,15 @@
   <ItemGroup>
     <Compile Include="Clients\Client.cs" />
     <Compile Include="Clients\ClientFactory.cs" />
-    <Compile Include="Clients\DeliveryConfirmationManager.cs" />
+    <Compile Include="Clients\DeliveryConfirmationManager\DeliveryConfirmationManager.cs" />
+    <Compile Include="Clients\DeliveryConfirmationManager\IReadConfirmationsStrategy.cs" />
+    <Compile Include="Clients\DeliveryConfirmationManager\ReadConfirmationsStrategyFactory.cs" />
+    <Compile Include="Clients\DeliveryConfirmationManager\TcpReadConfirmationsStrategy.cs" />
+    <Compile Include="Clients\DeliveryConfirmationManager\UdpReadConfirmationsStrategy.cs" />
     <Compile Include="Clients\DgramSocketClient.cs" />
     <Compile Include="Clients\ReliableUdpClient.cs" />
+    <Compile Include="Clients\ReliableUdpClientTcpConfirmation.cs" />
+    <Compile Include="Clients\ReliableUdpClientUdpConfirmation.cs" />
     <Compile Include="Clients\StreamSocketClient.cs" />
     <Compile Include="Clients\TcpClient.cs" />
     <Compile Include="Clients\UdpClient.cs" />
@@ -63,5 +71,6 @@
       <Name>WebProtocolsModel</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -2,15 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Net.Sockets;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 
 using WebProtocolsModel;
 
-namespace Client.Clients
+namespace Client.Clients.DeliveryConfirmationManager
 {
-	internal sealed class DeliveryConfirmationManager : IDisposable
+	internal class DeliveryConfirmationManager : IDisposable
 	{
 		private static readonly TimeSpan RetryTimeSpan = TimeSpan.FromMilliseconds(1);
 
@@ -25,29 +23,25 @@ namespace Client.Clients
 
 		private readonly IReadOnlyDictionary<int, BatchConfirmationInfo> _fileBatches;
 
-		private readonly TcpListener _deliveryConfirmationTcpListener;
-
 		private readonly System.Net.Sockets.UdpClient _retrySendingUdpClient;
+
+		private readonly IReadConfirmationsStrategyFactory _readConfirmationsStrategyFactory;
+
+		private readonly Thread _readConfirmationsThread;
 
 		private readonly IPEndPoint _serverIpEndPoint;
 
 		private int _retryCounter;
 
-		private static readonly BinaryFormatter BinaryFormatter = new BinaryFormatter();
-
-		private Thread _readConfirmationsThread;
-
 		public DeliveryConfirmationManager(
 			System.Net.Sockets.UdpClient retrySendingUdpClient,
-			IPEndPoint serverIpEndPoint,
-			IDictionary<int, FileBatch> fileBatchesToConfirm)
+			IReadConfirmationsStrategyFactory readConfirmationsStrategyFactory,
+			IReadOnlyDictionary<int, FileBatch> fileBatchesToConfirm,
+			IPEndPoint serverIpEndPoint)
 		{
 			_retrySendingUdpClient = retrySendingUdpClient;
+			_readConfirmationsStrategyFactory = readConfirmationsStrategyFactory;
 			_serverIpEndPoint = serverIpEndPoint;
-
-			_deliveryConfirmationTcpListener = new TcpListener(serverIpEndPoint.Address, ServerContext.ConfirmationPort);
-			_fileBatches = new Dictionary<int, BatchConfirmationInfo>();
-			_retryCounter = 0;
 
 			_fileBatches = fileBatchesToConfirm
 				.ToDictionary(
@@ -59,37 +53,23 @@ namespace Client.Clients
 							IsConfirmed = false,
 							LastRetryDateTimeUtc = DateTime.UtcNow
 						});
-		}
-
-		public void StartConfirmation()
-		{
-			_deliveryConfirmationTcpListener.Start();
 
 			_readConfirmationsThread = new Thread(ReadConfirmations);
 			_readConfirmationsThread.Start();
-		}
-
-		public void StopConfirmation()
-		{
-			_readConfirmationsThread.Join();
-			_deliveryConfirmationTcpListener.Stop();
-
-			Console.WriteLine("Количество ретраев UDP" + _retryCounter);
-			Console.WriteLine("Количество батчев" + _fileBatches.Count);
 		}
 
 		private void ReadConfirmations()
 		{
 			var confirmationsCounter = 0;
 
-			var client = _deliveryConfirmationTcpListener.AcceptTcpClient();
-			var networkStream = client.GetStream();
+			using var readConfirmationStrategy = _readConfirmationsStrategyFactory.CreateStrategy();
 
 			while (confirmationsCounter < _fileBatches.Count)
 			{
-				if (networkStream.DataAvailable)
+				var confirmMessage = readConfirmationStrategy.TryReadConfirmation();
+				if (confirmMessage != null)
 				{
-					ConfirmBatch();
+					ConfirmBatch(confirmMessage);
 				}
 				else
 				{
@@ -97,11 +77,8 @@ namespace Client.Clients
 				}
 			}
 
-			void ConfirmBatch()
+			void ConfirmBatch(ConfirmMessage confirmMessage)
 			{
-				if (!(BinaryFormatter.Deserialize(networkStream) is ConfirmMessage confirmMessage))
-					throw new InvalidCastException($"Message from network stream is not {nameof(ConfirmMessage)}");
-
 				_fileBatches[confirmMessage.BatchOrder].IsConfirmed = true;
 				confirmationsCounter++;
 			}
@@ -116,21 +93,25 @@ namespace Client.Clients
 				if (DateTime.UtcNow - batchInfo.LastRetryDateTimeUtc > RetryTimeSpan)
 				{
 					_retryCounter++;
-					RetrySendingBatch(batchInfo, _serverIpEndPoint);
+					RetrySendingBatch(batchInfo);
 				}
 			}
 		}
 
-		private void RetrySendingBatch(BatchConfirmationInfo batchConfirmationInfo, IPEndPoint iPEndPoint)
+		private void RetrySendingBatch(BatchConfirmationInfo batchConfirmationInfo)
 		{
 			var sendingBytes = batchConfirmationInfo.FileBatch.ToByteArray();
+
 			batchConfirmationInfo.LastRetryDateTimeUtc = DateTime.UtcNow;
-			_retrySendingUdpClient.Send(sendingBytes, sendingBytes.Length, iPEndPoint);
+			_retrySendingUdpClient.Send(sendingBytes, sendingBytes.Length, _serverIpEndPoint);
 		}
 
 		public void Dispose()
 		{
-			_retrySendingUdpClient?.Dispose();
+			_readConfirmationsThread.Join();
+
+			Console.WriteLine("Количество ретраев UDP " + _retryCounter);
+			Console.WriteLine("Количество батчев " + _fileBatches.Count);
 		}
 	}
 }

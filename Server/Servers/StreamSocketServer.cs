@@ -70,32 +70,27 @@ namespace Server.Servers
 
 		private void SaveFile(Socket handler, FileMetadata fileMetadata)
 		{
-			using (var binaryWriter = new BinaryWriter(new FileStream(fileMetadata.FileName, FileMode.Create)))
+			using var binaryWriter = new BinaryWriter(new FileStream(fileMetadata.FileName, FileMode.Create));
+			var buffer = new byte[BufferSize];
+			for (var i = 0; i < fileMetadata.FileSize; i += BufferSize)
 			{
-				var buffer = new byte[BufferSize];
-
-				for (var i = 0; i < fileMetadata.FileSize; i += BufferSize)
-				{
-					handler.Receive(buffer);
-					binaryWriter.Write(buffer);
-				}
+				handler.Receive(buffer);
+				binaryWriter.Write(buffer);
 			}
 		}
 
 		private void SaveFileWithDecompress(Socket handler, WebProtocolsModel.FileMetadata fileMetadata)
 		{
-			using (var binaryWriter = new BinaryWriter(new MemoryStream()))
+			using var binaryWriter = new BinaryWriter(new MemoryStream());
+			byte[] buffer = new byte[BufferSize];
+
+			for (int i = 0; i < fileMetadata.FileSize; i += BufferSize)
 			{
-				byte[] buffer = new byte[BufferSize];
-
-				for (int i = 0; i < fileMetadata.FileSize; i += BufferSize)
-				{
-					handler.Receive(buffer);
-					binaryWriter.Write(buffer);
-				}
-
-				ImageCompressor.SaveAndDecompressDeflate(fileMetadata.FileName, binaryWriter.BaseStream as MemoryStream);
+				handler.Receive(buffer);
+				binaryWriter.Write(buffer);
 			}
+
+			ImageCompressor.SaveAndDecompressDeflate(fileMetadata.FileName, binaryWriter.BaseStream as MemoryStream);
 		}
 	}
 }

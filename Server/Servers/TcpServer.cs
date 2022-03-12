@@ -55,15 +55,13 @@ namespace Server.Servers
 
 		private void SaveFile(NetworkStream networkStream, FileMetadata fileMetadata)
 		{
-			using (var binaryWriter = new BinaryWriter(new FileStream(fileMetadata.FileName, FileMode.Create)))
-			{
-				var buffer = new byte[BufferSize];
+			using var binaryWriter = new BinaryWriter(new FileStream(fileMetadata.FileName, FileMode.Create));
+			var buffer = new byte[BufferSize];
 
-				for (var i = 0; i < fileMetadata.FileSize; i += BufferSize)
-				{
-					_ = networkStream.Read(buffer, 0, BufferSize);
-					binaryWriter.Write(buffer);
-				}
+			for (var i = 0; i < fileMetadata.FileSize; i += BufferSize)
+			{
+				_ = networkStream.Read(buffer, 0, BufferSize);
+				binaryWriter.Write(buffer);
 			}
 		}
 	}

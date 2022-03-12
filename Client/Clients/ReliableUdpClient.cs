@@ -7,13 +7,13 @@ using WebProtocolsModel;
 
 namespace Client.Clients
 {
-	internal class ReliableUdpClient : UdpClient
+	internal abstract class ReliableUdpClient : UdpClient
 	{
 		internal ReliableUdpClient(string serverIpAddress, int serverPort) : base(serverIpAddress, serverPort)
 		{
 		}
 
-		public override void SendFile(string fileName)
+		public sealed override void SendFile(string fileName)
 		{
 			using (var inputFileStream = new FileStream(fileName, FileMode.Open))
 			{
@@ -34,19 +34,19 @@ namespace Client.Clients
 
 			var fileBatches = GetFileBatches(data);
 
-			var deliveryConfirmationManager = new DeliveryConfirmationManager(
-				InternalUdpClient,
-				ServerIpEndPoint,
-				fileBatches);
+			using var deliveryConfirmationStrategyFactory = CreateDeliveryConfirmationManager(fileBatches);
 
-			deliveryConfirmationManager.StartConfirmation();
 			foreach (var sendingBytes in fileBatches.Values.Select(batch => batch.ToByteArray()))
 			{
 				InternalUdpClient.Send(sendingBytes.ToArray(), sendingBytes.Length, ServerIpEndPoint);
 			}
-
-			deliveryConfirmationManager.StopConfirmation();
 		}
+
+		private DeliveryConfirmationManager.DeliveryConfirmationManager CreateDeliveryConfirmationManager(
+			IReadOnlyDictionary<int, FileBatch> fileBatches) =>
+			new(InternalUdpClient, CreateConfirmationsStrategyFactory(), fileBatches, ServerIpEndPoint);
+
+		protected abstract DeliveryConfirmationManager.IReadConfirmationsStrategyFactory CreateConfirmationsStrategyFactory();
 
 		private Dictionary<int, FileBatch> GetFileBatches(IReadOnlyCollection<byte> data)
 		{

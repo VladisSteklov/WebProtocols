@@ -22,8 +22,9 @@ namespace Server
 				Console.WriteLine("Выберете тип используемого подключения");
 				Console.WriteLine($"{ServerFactory.TcpServerKey} - TCP\n" +
 				                  $"{ServerFactory.UdpServerKey} - UDP\n" +
-				                  $"{ServerFactory.ReliableSlowUdpServerTcpConfirmServerKey} - Надежный медленный UDP\n" +
-				                  $"{ServerFactory.ReliableFastUdpServerTcpConfirmServerKey} - Надежный быстрый UDP\n" +
+				                  $"{ServerFactory.ReliableSlowUdpServerTcpConfirmServerKey} - Надежный медленный UDP - подтверждение TCP\n" +
+				                  $"{ServerFactory.ReliableFastUdpServerTcpConfirmServerKey} - Надежный быстрый UDP - подтверждение TCP\n" +
+				                  $"{ServerFactory.ReliableFastUdpServerUdpConfirmServerKey} - Надежный быстрый UDP - подтверждение UDP\n" +
 								  $"{ServerFactory.StreamSocketServerKey} - Сокет TCP\n" +
 				                  $"{ServerFactory.DgramSocketServerKey} - Сокет UDP");
 

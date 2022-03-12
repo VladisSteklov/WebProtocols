@@ -13,10 +13,12 @@ namespace Server.Servers.ConfirmStrategy
 		private static readonly BinaryFormatter BinaryFormatter = new BinaryFormatter();
 
 		private readonly UdpClient _confirmUdpClient;
+		private readonly IPEndPoint _clientIpEndPoint;
 
-		public UdpConfirmStrategy(IPEndPoint serverIpEndPoint)
+		public UdpConfirmStrategy(IPEndPoint clientIpEndPoint)
 		{
-			_confirmUdpClient = new UdpClient(serverIpEndPoint);
+			_confirmUdpClient = new UdpClient();
+			_clientIpEndPoint = clientIpEndPoint;
 		}
 
 		public void Confirm(FileBatch fileBatch)
@@ -28,7 +30,7 @@ namespace Server.Servers.ConfirmStrategy
 			var bytes = new byte[stream.Length];
 			_ = stream.Read(bytes, 0, Convert.ToInt32(stream.Length));
 
-			_confirmUdpClient.Send(bytes, bytes.Length);
+			_confirmUdpClient.Send(bytes, bytes.Length, _clientIpEndPoint);
 		}
 
 		public void StopConfirming()
@@ -38,7 +40,7 @@ namespace Server.Servers.ConfirmStrategy
 
 		public void Dispose()
 		{
-			_confirmUdpClient?.Dispose();
+			_confirmUdpClient?.Close();
 		}
 	}
 }

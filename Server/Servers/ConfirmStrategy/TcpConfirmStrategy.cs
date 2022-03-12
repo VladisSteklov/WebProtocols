@@ -41,8 +41,8 @@ namespace Server.Servers.ConfirmStrategy
 
 		public void Dispose()
 		{
-			_confirmingStream?.Dispose();
-			_confirmingClient?.Dispose();
+			_confirmingStream?.Close();
+			_confirmingClient?.Close();
 		}
 	}
 }
