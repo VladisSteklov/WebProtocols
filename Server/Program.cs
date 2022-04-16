@@ -26,7 +26,7 @@ namespace Server
 				                  $"{ServerFactory.ReliableFastUdpServerTcpConfirmServerKey} - Надежный быстрый UDP - подтверждение TCP\n" +
 				                  $"{ServerFactory.ReliableFastUdpServerUdpConfirmServerKey} - Надежный быстрый UDP - подтверждение UDP\n" +
 								  $"{ServerFactory.StreamSocketServerKey} - Сокет TCP\n" +
-				                  $"{ServerFactory.DgramSocketServerKey} - Сокет UDP", 
+				                  $"{ServerFactory.DgramSocketServerKey} - Сокет UDP\n" +
 					              $"{ServerFactory.ProtocolVolatileWebSever} - Алгоритм замены протокола");
 
 				var key = Console.ReadKey().KeyChar;

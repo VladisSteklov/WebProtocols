@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 
@@ -23,10 +24,12 @@ public class UdpProtocolSendingMainPartStrategy : IProtocolSendingMainPartStrate
         _deliveryConfirmationHost = deliveryConfirmationHost;
     }
 
-    public ProtocolTypeMessage ProtocolTypeMessage => ProtocolTypeMessage.TcpProtocolTypeMessage;
+    public ProtocolTypeMessage ProtocolTypeMessage => ProtocolTypeMessage.UdpProtocolTypeMessage;
     
     public void SendFileForMainPart(IDictionary<int, FileBatch> fileBatches)
     {
+	    Console.WriteLine("Отправка главной части по UDP");
+
         var hostTask = _deliveryConfirmationHost.RunHostAsync();
         
         foreach (var sendingBytes in fileBatches.Values.Select(batch => batch.ToByteArray()))

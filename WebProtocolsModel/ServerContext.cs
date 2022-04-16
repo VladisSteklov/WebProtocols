@@ -8,6 +8,8 @@
 
 		public const int ConfirmationPort = 25001;
 
+		public const int TcpPortForMainPart = 25002;
+
 		public const int BufferSize = 8192;
 	}
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -15,13 +16,15 @@ public class TcpProtocolSendingMainPartStrategy : IProtocolSendingMainPartStrate
     public TcpProtocolSendingMainPartStrategy(IPEndPoint serverIpEndPoint)
     {
         _tcpClient = new System.Net.Sockets.TcpClient();
-        _serverIpEndPoint = serverIpEndPoint;
+        _serverIpEndPoint = new IPEndPoint(serverIpEndPoint.Address, ServerContext.TcpPortForMainPart);
     }
 
     public ProtocolTypeMessage ProtocolTypeMessage => ProtocolTypeMessage.TcpProtocolTypeMessage;
     
     public void SendFileForMainPart(IDictionary<int, FileBatch> fileBatches)
     {
+	    Console.WriteLine("Отправка главной части по TCP");
+
         _tcpClient.Connect(_serverIpEndPoint);
 
         using var networkStream = _tcpClient.GetStream();
@@ -32,9 +35,9 @@ public class TcpProtocolSendingMainPartStrategy : IProtocolSendingMainPartStrate
     
     private static void SendFile(Stream networkStream, IDictionary<int, FileBatch> fileBatches)
     {
-        foreach (var sendingBytes in fileBatches.Values.Select(batch => batch.ToByteArray()))
+        foreach (var sendingBytes in fileBatches.Values.Select(batch => batch.Bytes))
         {
-            networkStream.Write(sendingBytes, 0, sendingBytes.Length);
+	        networkStream.Write(sendingBytes, 0, sendingBytes.Length);
         }
     }
     

@@ -103,7 +103,10 @@ public class ProtocolVolatileWebClient : UdpClient
 		int fileBatchesForTestPartCount,
 		IReadOnlyDictionary<int, FileBatch> fileBatchesForMainPart)
 	{
-		return retryCount < fileBatchesForTestPartCount * MaxRetryCountForTestPartFraction
+		var limitForUdpSending = fileBatchesForTestPartCount * MaxRetryCountForTestPartFraction;
+		Console.WriteLine($"Порог для дальнейше UDP отправки {limitForUdpSending}");
+
+		return retryCount < limitForUdpSending
 			? new UdpProtocolSendingMainPartStrategy(InternalUdpClient, ServerIpEndPoint, CreateDeliveryConfirmationHost(fileBatchesForMainPart))
 			: new TcpProtocolSendingMainPartStrategy(ServerIpEndPoint);
 	}

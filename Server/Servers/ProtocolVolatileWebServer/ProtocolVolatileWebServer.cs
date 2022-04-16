@@ -16,13 +16,10 @@ namespace Server.Servers.ProtocolVolatileWebServer;
 public class ProtocolVolatileWebServer : UdpServer
 {
 	private static readonly BinaryFormatter BinaryFormatter = new();
-	
 	private readonly IConfirmStrategy _confirmStrategy;
-	private readonly int _serverPort;
-	
+
 	public ProtocolVolatileWebServer(string serverAddress, int serverPort) : base(serverAddress, serverPort)
 	{
-		_serverPort = serverPort;
 		_confirmStrategy = new UdpConfirmStrategyFactory().CreateStrategy(ServerIpAddress);
 	}
 	
@@ -53,38 +50,44 @@ public class ProtocolVolatileWebServer : UdpServer
 		var protocolTypeMessage = GetMessage<ProtocolTypeMessage>();
 		
 		return fileBatchesFromTestPart
-			.Concat(ReceiveMainPart(protocolTypeMessage, fileMetadata.FileBatchesForMainPartCount))
+			.Concat(ReceiveMainPart(protocolTypeMessage, fileMetadata))
 			.ToDictionary(p => p.Key, p => p.Value);
 	}
 
-	IDictionary<int, FileBatch> ReceiveMainPart(ProtocolTypeMessage protocolTypeMessage, int fileBatchesForMainPartCount)
+	IDictionary<int, FileBatch> ReceiveMainPart(ProtocolTypeMessage protocolTypeMessage, FileBatchesMetadataMessage fileMetadata)
 	{
 		return protocolTypeMessage.ProtocolType switch
 		{
-			ProtocolType.Tcp => ReceiveAsTcp(fileBatchesForMainPartCount),
-			ProtocolType.Udp => ReceiveAsReliableUdp(fileBatchesForMainPartCount),
+			ProtocolType.Tcp => ReceiveAsTcp(fileMetadata),
+			ProtocolType.Udp => ReceiveAsReliableUdp(fileMetadata.FileBatchesForMainPartCount),
 			_ => throw new InvalidOperationException($"Invalid protocol type {protocolTypeMessage.ProtocolType}")
 		};
 	}
 	private IDictionary<int, FileBatch> ReceiveAsReliableUdp(int fileBatchesForMainPartCount)
 	{
+		Console.WriteLine("Приём основной части по UDP");
 		return ReceiveFileBatches(fileBatchesForMainPartCount);
 	}
 	
-	private IDictionary<int, FileBatch> ReceiveAsTcp(int fileBatchesForMainPartCount)
+	private IDictionary<int, FileBatch> ReceiveAsTcp(FileBatchesMetadataMessage fileMetadata)
 	{
-		var server = new TcpListener(ServerIpAddress, _serverPort);
+		Console.WriteLine("Приём основной части по TCP");
+
+		var server = new TcpListener(ServerIpAddress, ServerContext.TcpPortForMainPart);
+		server.Start();
+
 		using var client = server.AcceptTcpClient();
 		using var networkStream = client.GetStream();
 		
 		var fileBatches = new Dictionary<int, FileBatch>();
 		var buffer = new byte[BufferSize];
 		
-		for (var i = 0; i < fileBatchesForMainPartCount; i += BufferSize)
+		for (var i = 0; i < fileMetadata.FileBatchesForMainPartCount; i++)
 		{
-			_ = networkStream.Read(buffer, 0, BufferSize);
-			var fileBatch = GetMessage<FileBatch>(buffer);
-			fileBatches.Add(fileBatch.Order, fileBatch);
+			var _ = networkStream.Read(buffer, 0, BufferSize);
+
+			var order = fileMetadata.FileBatchesForTestPartCount + i;
+			fileBatches.Add(order, new FileBatch { Bytes = buffer, Order = order });
 		}
 		
 		server.Stop();
