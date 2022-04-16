@@ -10,6 +10,7 @@ namespace Client.Clients
 		internal const char ReliableUdpClientUdpConfirmationKey = 'q';
 		internal const char StreamSocketClientKey = 's';
 		internal const char DgramSocketClientKey = 'd';
+		internal const char ProtocolVolatileWebClient = 'v';
 
 		internal static Client TryCreateClient(char key)
 		{
@@ -21,6 +22,7 @@ namespace Client.Clients
 				ReliableUdpClientUdpConfirmationKey => new ReliableUdpClientUdpConfirmation(ServerContext.Address, ServerContext.Port),
 				StreamSocketClientKey => new StreamSocketClient(ServerContext.Address, ServerContext.Port),
 				DgramSocketClientKey => new DgramSocketClient(ServerContext.Address, ServerContext.Port),
+				ProtocolVolatileWebClient => new ProtocolVolatileWebClient.ProtocolVolatileWebClient(ServerContext.Address, ServerContext.Port),
 				_ => null
 			};
 		}

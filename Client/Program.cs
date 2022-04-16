@@ -57,7 +57,8 @@ namespace Client
 				                  $"{ClientFactory.ReliableUdpClientTcpConfirmationKey} - Надежный UDP - подтверждение TCP\n" +
 				                  $"{ClientFactory.ReliableUdpClientUdpConfirmationKey} - Надежный UDP - подтверждение UDP\n" +
 								  $"{ClientFactory.StreamSocketClientKey} - Сокет TCP\n" +
-				                  $"{ClientFactory.DgramSocketClientKey} - Сокет UDP");
+				                  $"{ClientFactory.DgramSocketClientKey} - Сокет UDP\n" +
+				                  $"{ClientFactory.ProtocolVolatileWebClient} - Алгоритм замены протокола");
 
 				var key = Console.ReadKey().KeyChar;
 

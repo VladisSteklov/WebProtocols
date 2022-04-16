@@ -12,6 +12,8 @@ namespace Server.Servers
 		internal const char StreamSocketServerKey = 's';
 		internal const char DgramSocketServerKey = 'd';
 		internal const char ReliableFastUdpServerUdpConfirmServerKey = 'q';
+		internal const char ProtocolVolatileWebSever = 'v';
+		
 		internal static Server TryCreateServer(char key)
 		{
 			return key switch
@@ -26,6 +28,7 @@ namespace Server.Servers
 				DgramSocketServerKey => new DgramSocketServer(ServerContext.Address, ServerContext.Port),
 				ReliableFastUdpServerUdpConfirmServerKey => new ReliableFastUdpServerUdpConfirm(ServerContext.Address,
 					ServerContext.Port),
+				ProtocolVolatileWebSever => new ProtocolVolatileWebServer.ProtocolVolatileWebServer(ServerContext.Address, ServerContext.Port),
 				_ => null
 			};
 		}
