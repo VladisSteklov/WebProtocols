@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-
+using Client.Clients.DeliveryConfirmationManager;
 using WebProtocolsModel;
 
 namespace Client.Clients
@@ -34,19 +34,22 @@ namespace Client.Clients
 
 			var fileBatches = GetFileBatches(data);
 
-			using var _ = CreateDeliveryConfirmationManager(fileBatches);
-
+			using var confirmationHost = CreateDeliveryConfirmationHost(fileBatches);
+			var hostTask = confirmationHost.RunHostAsync();
+			
 			foreach (var sendingBytes in fileBatches.Values.Select(batch => batch.ToByteArray()))
 			{
 				InternalUdpClient.Send(sendingBytes.ToArray(), sendingBytes.Length, ServerIpEndPoint);
 			}
+
+			hostTask.Wait();
 		}
 
-		private DeliveryConfirmationManager.DeliveryConfirmationManager CreateDeliveryConfirmationManager(
+		private DeliveryConfirmationHost CreateDeliveryConfirmationHost(
 			IReadOnlyDictionary<int, FileBatch> fileBatches) =>
 			new(InternalUdpClient, CreateConfirmationsStrategyFactory(), fileBatches, ServerIpEndPoint);
 
-		protected abstract DeliveryConfirmationManager.IReadConfirmationsStrategyFactory CreateConfirmationsStrategyFactory();
+		protected abstract IReadConfirmationsStrategyFactory CreateConfirmationsStrategyFactory();
 
 		private Dictionary<int, FileBatch> GetFileBatches(IReadOnlyCollection<byte> data)
 		{

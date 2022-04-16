@@ -6,7 +6,7 @@ using WebProtocolsModel;
 
 namespace Client.Clients
 {
-	internal class UdpClient : Client
+	public class UdpClient : Client
 	{
 		protected System.Net.Sockets.UdpClient InternalUdpClient { get; }
 

@@ -5,7 +5,7 @@ using WebProtocolsModel;
 
 namespace Client.Clients
 {
-	internal abstract class Client : IDisposable
+	public abstract class Client : IDisposable
 	{
 		protected int BufferSize => ServerContext.BufferSize;
 

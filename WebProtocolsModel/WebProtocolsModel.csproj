@@ -45,8 +45,10 @@
     <Compile Include="FileBatch.cs" />
     <Compile Include="FileMetadata.cs" />
     <Compile Include="ImageCompressor.cs" />
+    <Compile Include="IsExternalInit.cs" />
     <Compile Include="ObjectExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ProtocolType.cs" />
     <Compile Include="ServerContext.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

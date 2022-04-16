@@ -2,6 +2,7 @@
 using System.Net.Sockets
 	;
 using WebProtocolsModel;
+using ProtocolType = System.Net.Sockets.ProtocolType;
 
 namespace Client.Clients
 {

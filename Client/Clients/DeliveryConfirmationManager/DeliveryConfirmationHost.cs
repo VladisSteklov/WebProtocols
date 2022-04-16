@@ -2,38 +2,31 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Threading;
+using System.Threading.Tasks;
 
 using WebProtocolsModel;
 
 namespace Client.Clients.DeliveryConfirmationManager
 {
-	internal class DeliveryConfirmationManager : IDisposable
+	internal class DeliveryConfirmationHost : IDisposable
 	{
 		private static readonly TimeSpan RetryTimeSpan = TimeSpan.FromMilliseconds(50);
 
 		private class BatchConfirmationInfo
 		{
 			public bool IsConfirmed { get; set; }
-
 			public DateTime LastRetryDateTimeUtc { get; set; }
-
 			public FileBatch FileBatch { get; set; }
 		}
 
 		private readonly IReadOnlyDictionary<int, BatchConfirmationInfo> _fileBatches;
-
 		private readonly System.Net.Sockets.UdpClient _retrySendingUdpClient;
-
 		private readonly IReadConfirmationsStrategyFactory _readConfirmationsStrategyFactory;
-
-		private readonly Thread _readConfirmationsThread;
-
 		private readonly IPEndPoint _serverIpEndPoint;
 
 		private int _retryCounter;
 
-		public DeliveryConfirmationManager(
+		public DeliveryConfirmationHost(
 			System.Net.Sockets.UdpClient retrySendingUdpClient,
 			IReadConfirmationsStrategyFactory readConfirmationsStrategyFactory,
 			IReadOnlyDictionary<int, FileBatch> fileBatchesToConfirm,
@@ -53,12 +46,15 @@ namespace Client.Clients.DeliveryConfirmationManager
 							IsConfirmed = false,
 							LastRetryDateTimeUtc = DateTime.UtcNow
 						});
-
-			_readConfirmationsThread = new Thread(ReadConfirmations);
-			_readConfirmationsThread.Start();
 		}
 
-		private void ReadConfirmations()
+		public Task<int> RunHostAsync()
+		{
+			return Task.Run(ReadConfirmations);
+		}
+		
+		
+		private int ReadConfirmations()
 		{
 			var confirmationsCounter = 0;
 
@@ -76,6 +72,8 @@ namespace Client.Clients.DeliveryConfirmationManager
 					RetrySendingBatches();
 				}
 			}
+
+			return _retryCounter;
 
 			void ConfirmBatch(ConfirmMessage confirmMessage)
 			{
@@ -108,8 +106,6 @@ namespace Client.Clients.DeliveryConfirmationManager
 
 		public void Dispose()
 		{
-			_readConfirmationsThread.Join();
-
 			Console.WriteLine("Количество ретраев UDP " + _retryCounter);
 			Console.WriteLine("Количество батчев " + _fileBatches.Count);
 		}
