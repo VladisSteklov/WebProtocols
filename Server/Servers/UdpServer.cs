@@ -9,7 +9,7 @@ using WebProtocolsModel;
 
 namespace Server.Servers
 {
-	internal class UdpServer : Server
+	public class UdpServer : Server
 	{
 		protected UdpClient Server { get; }
 

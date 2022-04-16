@@ -8,7 +8,7 @@ using WebProtocolsModel;
 
 namespace Client.Clients.DeliveryConfirmationManager
 {
-	internal class DeliveryConfirmationHost : IDisposable
+	public class DeliveryConfirmationHost : IDisposable
 	{
 		private static readonly TimeSpan RetryTimeSpan = TimeSpan.FromMilliseconds(50);
 

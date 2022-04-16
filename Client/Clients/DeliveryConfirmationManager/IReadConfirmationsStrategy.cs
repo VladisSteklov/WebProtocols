@@ -3,7 +3,7 @@ using WebProtocolsModel;
 
 namespace Client.Clients.DeliveryConfirmationManager
 {
-	internal interface IReadConfirmationsStrategy : IDisposable
+	public interface IReadConfirmationsStrategy : IDisposable
 	{
 		ConfirmMessage TryReadConfirmation();
 	}

@@ -3,7 +3,7 @@ using System.Net.Sockets;
 
 namespace Client.Clients.DeliveryConfirmationManager
 {
-	internal interface IReadConfirmationsStrategyFactory : IDisposable
+	public interface IReadConfirmationsStrategyFactory : IDisposable
 	{
 		IReadConfirmationsStrategy CreateStrategy();
 	}

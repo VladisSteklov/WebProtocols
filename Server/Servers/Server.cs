@@ -5,7 +5,7 @@ using WebProtocolsModel;
 
 namespace Server.Servers
 {
-	internal abstract class Server
+	public abstract class Server
 	{
 		protected int BufferSize => ServerContext.BufferSize;
 

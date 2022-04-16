@@ -3,17 +3,22 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Runtime.Serialization.Formatters.Binary;
+
 using Client.Clients.DeliveryConfirmationManager;
 using Client.Clients.ProtocolVolatileWebClient.ProtocolVolatileStrategy;
+
 using WebProtocolsModel;
 
 namespace Client.Clients.ProtocolVolatileWebClient;
 
 public class ProtocolVolatileWebClient : UdpClient
 {
-	private const double MaxRetryCountFraction = 0.5;
-	private const double CountFileBatchesForTestPartFraction = 0.25;
+	private const double MaxRetryCountForTestPartFraction = 0.5;
+	private const double FileBatchesCountForTestPartFromFileFraction = 0.25;
 
+	private readonly BinaryFormatter _binaryFormatter = new();
+	
 	public ProtocolVolatileWebClient(string serverIpAddress, int serverPort) : base(serverIpAddress, serverPort)
 	{
 	}
@@ -22,11 +27,10 @@ public class ProtocolVolatileWebClient : UdpClient
 	{
 		using (var inputFileStream = new FileStream(fileName, FileMode.Open))
 		{
-			SendFileMetadata(inputFileStream);
 			SendFile(inputFileStream);
 		}
 
-		InternalUdpClient.Close();
+		InternalUdpClient?.Close();
 	}
 
 	private void SendFile(FileStream fileStream)
@@ -38,15 +42,41 @@ public class ProtocolVolatileWebClient : UdpClient
 		}
 
 		var (fileBatchesForTestPart, fileBatchesForMainPart)  = GetFileBatches(data);
-
-		var retryCount = SendTestPart(fileStream, fileBatchesForTestPart);
+		SendFileMetadata(fileStream, fileBatchesForTestPart.Count, fileBatchesForMainPart.Count);
 		
-		var protocolVolatileStrategy = ResolveProtocol(retryCount);
-		protocolVolatileStrategy.SendProtocolTypeMessage();
-		protocolVolatileStrategy.SendFile();
+		var retryCount = SendTestPart(fileBatchesForTestPart);
+		
+		using var protocolVolatileStrategy = ResolveProtocolForMainPart(retryCount, fileBatchesForTestPart.Count, fileBatchesForMainPart);
+		SendMessageCore(protocolVolatileStrategy.ProtocolTypeMessage);
+		protocolVolatileStrategy.SendFileForMainPart(fileBatchesForMainPart);
+	}
+	
+	private void SendFileMetadata(FileStream fileStream, int fileBatchesForTestPartCount, int fileBatchesForMainPartCount)
+	{
+		var fileInfo = new FileBatchesMetadataMessage
+		{
+			FileName = fileStream.Name,
+			FileBatchesForMainPartCount = fileBatchesForMainPartCount,
+			FileBatchesForTestPartCount = fileBatchesForTestPartCount
+		};
+
+		SendMessageCore(fileInfo);
 	}
 
-	private int SendTestPart(FileStream fileStream, IReadOnlyDictionary<int, FileBatch> fileBatches)
+	private void SendMessageCore(object message)
+	{
+		var stream = new MemoryStream();
+		_binaryFormatter.Serialize(stream, message);
+		stream.Position = 0;
+
+		var bytes = new byte[stream.Length];
+		_ = stream.Read(bytes, 0, Convert.ToInt32(stream.Length));
+
+		InternalUdpClient.Send(bytes, bytes.Length, ServerIpEndPoint);
+	}
+	
+	
+	private int SendTestPart(IReadOnlyDictionary<int, FileBatch> fileBatches)
 	{
 		using var confirmationHost = CreateDeliveryConfirmationHost(fileBatches);
 		var hostTask = confirmationHost.RunHostAsync();
@@ -68,10 +98,14 @@ public class ProtocolVolatileWebClient : UdpClient
 		return new DeliveryConfirmationHost(InternalUdpClient, confirmationsStrategyFactory, fileBatches, ServerIpEndPoint);
 	}
 
-	private static IProtocolVolatileStrategy ResolveProtocol(int retryCount)
+	private IProtocolSendingMainPartStrategy ResolveProtocolForMainPart(
+		int retryCount,
+		int fileBatchesForTestPartCount,
+		IReadOnlyDictionary<int, FileBatch> fileBatchesForMainPart)
 	{
-		return retryCount < _maxRetryCount ? new UdpProtocolVolatileStrategy() : new TcpProtocolVolatileStrategy();
-		return new ProtocolVolatileResolver(retryCount).ResolveProtocol(retryCount);
+		return retryCount < fileBatchesForTestPartCount * MaxRetryCountForTestPartFraction
+			? new UdpProtocolSendingMainPartStrategy(InternalUdpClient, ServerIpEndPoint, CreateDeliveryConfirmationHost(fileBatchesForMainPart))
+			: new TcpProtocolSendingMainPartStrategy(ServerIpEndPoint);
 	}
 
 	private (Dictionary<int, FileBatch>, Dictionary<int, FileBatch>) GetFileBatches(IReadOnlyCollection<byte> data)
@@ -90,7 +124,7 @@ public class ProtocolVolatileWebClient : UdpClient
 				});
 		}
 
-		var fileBatchesForTestPartCount = (int)Math.Ceiling(batches.Count * CountFileBatchesForTestPartFraction);
+		var fileBatchesForTestPartCount = (int)Math.Ceiling(batches.Count * FileBatchesCountForTestPartFromFileFraction);
 		var fileBatchesForTestPart = batches.Take(fileBatchesForTestPartCount).ToDictionary(p => p.Key, p => p.Value);
 
 		var fileBatchesForMainPart = batches
@@ -99,9 +133,5 @@ public class ProtocolVolatileWebClient : UdpClient
 			.ToDictionary(p => p.Key, p => p.Value);
 
 		return (fileBatchesForTestPart, fileBatchesForMainPart);
-	}
-
-	public override void Dispose()
-	{
 	}
 }
