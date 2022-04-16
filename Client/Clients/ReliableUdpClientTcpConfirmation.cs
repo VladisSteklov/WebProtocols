@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Net.Sockets;
+﻿using System.Net.Sockets;
 using Client.Clients.DeliveryConfirmationManager;
 using WebProtocolsModel;
 

@@ -34,7 +34,7 @@ namespace Client.Clients
 
 			var fileBatches = GetFileBatches(data);
 
-			using var deliveryConfirmationStrategyFactory = CreateDeliveryConfirmationManager(fileBatches);
+			using var _ = CreateDeliveryConfirmationManager(fileBatches);
 
 			foreach (var sendingBytes in fileBatches.Values.Select(batch => batch.ToByteArray()))
 			{

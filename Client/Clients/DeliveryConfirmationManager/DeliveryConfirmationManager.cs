@@ -10,7 +10,7 @@ namespace Client.Clients.DeliveryConfirmationManager
 {
 	internal class DeliveryConfirmationManager : IDisposable
 	{
-		private static readonly TimeSpan RetryTimeSpan = TimeSpan.FromMilliseconds(1);
+		private static readonly TimeSpan RetryTimeSpan = TimeSpan.FromMilliseconds(50);
 
 		private class BatchConfirmationInfo
 		{

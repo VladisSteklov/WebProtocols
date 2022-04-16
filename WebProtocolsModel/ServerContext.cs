@@ -8,6 +8,6 @@
 
 		public const int ConfirmationPort = 25001;
 
-		public const int BufferSize = 4096;
+		public const int BufferSize = 8192;
 	}
 }

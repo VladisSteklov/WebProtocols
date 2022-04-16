@@ -22,10 +22,11 @@ namespace Server.Servers
 		public override void Process()
 		{
 			var fileMetadata = GetFileMetadata();
-			using var confirmStrategy = _confirmStrategyFactory.CreateStrategy(ServerIpAddress);
 
 			var stopwatch = new Stopwatch();
 			stopwatch.Start();
+
+			using var confirmStrategy = _confirmStrategyFactory.CreateStrategy(ServerIpAddress);
 
 			SaveFile(fileMetadata, confirmStrategy);
 
