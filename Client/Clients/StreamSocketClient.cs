@@ -7,7 +7,7 @@ using ProtocolType = System.Net.Sockets.ProtocolType;
 
 namespace Client.Clients
 {
-	internal class StreamSocketClient : Client
+	internal class StreamSocketClient : Client, IClient
 	{
 		private readonly Socket _socket;
 
@@ -16,7 +16,7 @@ namespace Client.Clients
 			_socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 		}
 
-		public override void SendFile(string fileName)
+		public void SendFile(string fileName)
 		{
 			if (!File.Exists(fileName))
 			{

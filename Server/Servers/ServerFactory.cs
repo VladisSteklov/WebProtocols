@@ -1,4 +1,5 @@
 ﻿using System;
+using Server.Servers.MultipleTransmissions;
 using WebProtocolsModel;
 
 namespace Server.Servers
@@ -13,7 +14,9 @@ namespace Server.Servers
 		internal const char DgramSocketServerKey = 'd';
 		internal const char ReliableFastUdpServerUdpConfirmServerKey = 'q';
 		internal const char ProtocolVolatileWebSever = 'v';
-		
+		internal const char UseOneConnectionTcpServerKey = 'o';
+		internal const char UseConnectionByFileTcpServerKey = 'm';
+
 		internal static Server TryCreateServer(char key)
 		{
 			return key switch
@@ -29,6 +32,8 @@ namespace Server.Servers
 				ReliableFastUdpServerUdpConfirmServerKey => new ReliableFastUdpServerUdpConfirm(ServerContext.Address,
 					ServerContext.Port),
 				ProtocolVolatileWebSever => new ProtocolVolatileWebServer.ProtocolVolatileWebServer(ServerContext.Address, ServerContext.Port),
+				UseOneConnectionTcpServerKey => new UseOneConnectionTcpServer(ServerContext.Address, ServerContext.Port),
+				UseConnectionByFileTcpServerKey => new UseConnectionByFileTcpServer(ServerContext.Address, ServerContext.Port),
 				_ => null
 			};
 		}

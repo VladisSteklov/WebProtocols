@@ -21,8 +21,6 @@ namespace Client.Clients
 			ServerIpEndPoint = new IPEndPoint(iPAddress, serverPort);
 		}
 
-		public abstract void SendFile(string fileName);
-
 		public abstract void Dispose();
 	}
 }

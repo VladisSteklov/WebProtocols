@@ -6,7 +6,7 @@ using WebProtocolsModel;
 
 namespace Client.Clients
 {
-	public class UdpClient : Client
+	public class UdpClient : Client, IClient
 	{
 		protected System.Net.Sockets.UdpClient InternalUdpClient { get; }
 
@@ -15,7 +15,7 @@ namespace Client.Clients
 			InternalUdpClient = new System.Net.Sockets.UdpClient();
 		}
 
-		public override void SendFile(string fileName)
+		public virtual void SendFile(string fileName)
 		{
 			using (var inputFileStream = new FileStream(fileName, FileMode.Open))
 			{

@@ -2,18 +2,22 @@
 using System.Diagnostics;
 
 using Client.Clients;
+using Client.Clients.MultipleTransmissions;
+using WebProtocolsModel;
 
 namespace Client
 {
 	internal class Program
 	{
-		private static readonly string fileName = "ExampleEn.jpg";
+		private static readonly string FileName = "ExampleMid.jpg";
 
 		static void Main()
 		{
 			Console.WriteLine("Программа клиента");
 
 			using var client = SelectClient();
+
+			//using var client = new UseConnectionByFileTcpClient(ServerContext.Address, ServerContext.Port);
 
 			char key;
 			do
@@ -32,21 +36,23 @@ namespace Client
 			Console.ReadKey();
 		}
 
-		private static void TransmitFile(Clients.Client client)
+		private static void TransmitFile(IClient client)
 		{
 			var stopwatch = new Stopwatch();
 
 			Console.WriteLine("Начало передачи файла");
 			stopwatch.Start();
 
-			client.SendFile(fileName);
+			Console.WriteLine(DateTime.Now.ToString("hh.mm.ss.fff"));
+
+			client.SendFile(FileName);
 
 			stopwatch.Stop();
 			Console.WriteLine("Конец передачи файла");
 			Console.WriteLine($"Время передачи файла со стороны клиента состовляет {stopwatch.ElapsedMilliseconds} милисекунд");
 		}
 
-		private static Clients.Client SelectClient()
+		private static Clients.IClient SelectClient()
 		{
 			do
 			{

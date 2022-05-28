@@ -9,16 +9,16 @@ namespace WebProtocolsModel
         {
             var memoryStream = new MemoryStream();
 
-            using (var compressionStream = new GZipStream(memoryStream, CompressionMode.Compress))
-            {
-                fileStream.CopyTo(compressionStream);
-            }
+            var compressionStream = new GZipStream(memoryStream, CompressionMode.Compress);
+            fileStream.CopyTo(compressionStream);
 
             return memoryStream;
         }
 
         public static void SaveAndDecompressGZip(string fileName, MemoryStream memoryStream)
 		{
+			memoryStream.Position = 0;
+
             using (var targetStream = File.Create(fileName))
             {
                 using (var decompressionStream = new GZipStream(memoryStream, CompressionMode.Decompress))

@@ -52,6 +52,9 @@
     <Compile Include="Servers\ConfirmStrategy\TcpConfirmStrategy.cs" />
     <Compile Include="Servers\ConfirmStrategy\UdpConfirmStrategy.cs" />
     <Compile Include="Servers\DgramSocketServer.cs" />
+    <Compile Include="Servers\MultipleTransmissions\UseOneConnectionTcpServer.cs" />
+    <Compile Include="Servers\MultipleTransmissions\UseConnectionByFileTcpServer.cs" />
+    <Compile Include="Servers\ProtocolVolatileWebServer\ProtocolVolatileWebServer.cs" />
     <Compile Include="Servers\ReliableFastUdpServer.cs" />
     <Compile Include="Servers\ReliableFastUdpServerTcpConfirm.cs" />
     <Compile Include="Servers\ReliableFastUdpServerUdpConfirm.cs" />

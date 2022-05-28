@@ -48,14 +48,20 @@
     <Compile Include="Clients\Client.cs" />
     <Compile Include="Clients\ClientFactory.cs" />
     <Compile Include="Clients\DeliveryConfirmationManager\DeliveryConfirmationHost.cs" />
+    <Compile Include="Clients\DeliveryConfirmationManager\FixedQueue.cs" />
+    <Compile Include="Clients\DeliveryConfirmationManager\FixedSizedQueueExtensions.cs" />
     <Compile Include="Clients\DeliveryConfirmationManager\IReadConfirmationsStrategy.cs" />
     <Compile Include="Clients\DeliveryConfirmationManager\ReadConfirmationsStrategyFactory.cs" />
     <Compile Include="Clients\DeliveryConfirmationManager\TcpReadConfirmationsStrategy.cs" />
     <Compile Include="Clients\DeliveryConfirmationManager\UdpReadConfirmationsStrategy.cs" />
     <Compile Include="Clients\DgramSocketClient.cs" />
-    <Compile Include="Clients\ProtocolVolatileWebClient\ProtocolVolatileStrategy\IProtocolVolatileStrategy.cs" />
-    <Compile Include="Clients\ProtocolVolatileWebClient\ProtocolVolatileStrategy\TcpProtocolVolatileStrategy.cs" />
-    <Compile Include="Clients\ProtocolVolatileWebClient\ProtocolVolatileStrategy\UdpProtocolVolatileStrategy.cs" />
+    <Compile Include="Clients\IClient.cs" />
+    <Compile Include="Clients\MultipleTransmissions\IMultipleTransmissionClient.cs" />
+    <Compile Include="Clients\MultipleTransmissions\UseOneConnectionTcpClient.cs" />
+    <Compile Include="Clients\MultipleTransmissions\UseConnectionByFileTcpClient.cs" />
+    <Compile Include="Clients\ProtocolVolatileWebClient\ProtocolVolatileStrategy\IProtocolSendingMainPartStrategy.cs" />
+    <Compile Include="Clients\ProtocolVolatileWebClient\ProtocolVolatileStrategy\TcpProtocolSendingMainPartStrategy.cs" />
+    <Compile Include="Clients\ProtocolVolatileWebClient\ProtocolVolatileStrategy\UdpProtocolSendingMainPartStrategy.cs" />
     <Compile Include="Clients\ProtocolVolatileWebClient\ProtocolVolatileWebClient.cs" />
     <Compile Include="Clients\ReliableUdpClient.cs" />
     <Compile Include="Clients\ReliableUdpClientTcpConfirmation.cs" />
@@ -75,5 +81,6 @@
       <Name>WebProtocolsModel</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Client.Clients.DeliveryConfirmationManager;
 using WebProtocolsModel;
 
@@ -40,6 +42,7 @@ namespace Client.Clients
 			foreach (var sendingBytes in fileBatches.Values.Select(batch => batch.ToByteArray()))
 			{
 				InternalUdpClient.Send(sendingBytes.ToArray(), sendingBytes.Length, ServerIpEndPoint);
+				Thread.Sleep(1 / 1000);
 			}
 
 			hostTask.Wait();

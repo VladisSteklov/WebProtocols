@@ -5,7 +5,7 @@ using WebProtocolsModel;
 
 namespace Client.Clients
 {
-	internal sealed class TcpClient : Client
+	internal sealed class TcpClient : Client, IClient
 	{
 		private readonly System.Net.Sockets.TcpClient _tcpClient;
 
@@ -14,7 +14,7 @@ namespace Client.Clients
 			_tcpClient = new System.Net.Sockets.TcpClient();
 		}
 
-		public override void SendFile(string fileName)
+		public void SendFile(string fileName)
 		{
 			if (!File.Exists(fileName))
 			{

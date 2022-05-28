@@ -1,0 +1,11 @@
+C:\Users\hp\source\repos\WebProtocols\Client\bin\Release\Client.exe.config
+C:\Users\hp\source\repos\WebProtocols\Client\bin\Release\Client.exe
+C:\Users\hp\source\repos\WebProtocols\Client\bin\Release\Client.pdb
+C:\Users\hp\source\repos\WebProtocols\Client\bin\Release\WebProtocolsModel.dll
+C:\Users\hp\source\repos\WebProtocols\Client\bin\Release\WebProtocolsModel.pdb
+C:\Users\hp\source\repos\WebProtocols\Client\obj\Release\Client.csproj.AssemblyReference.cache
+C:\Users\hp\source\repos\WebProtocols\Client\obj\Release\Client.csproj.SuggestedBindingRedirects.cache
+C:\Users\hp\source\repos\WebProtocols\Client\obj\Release\Client.csproj.CoreCompileInputs.cache
+C:\Users\hp\source\repos\WebProtocols\Client\obj\Release\Client.csproj.CopyComplete
+C:\Users\hp\source\repos\WebProtocols\Client\obj\Release\Client.exe
+C:\Users\hp\source\repos\WebProtocols\Client\obj\Release\Client.pdb

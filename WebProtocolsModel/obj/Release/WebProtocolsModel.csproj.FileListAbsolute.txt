@@ -1,0 +1,6 @@
+C:\Users\hp\source\repos\WebProtocols\WebProtocolsModel\bin\Release\WebProtocolsModel.dll
+C:\Users\hp\source\repos\WebProtocols\WebProtocolsModel\bin\Release\WebProtocolsModel.pdb
+C:\Users\hp\source\repos\WebProtocols\WebProtocolsModel\obj\Release\WebProtocolsModel.csproj.AssemblyReference.cache
+C:\Users\hp\source\repos\WebProtocols\WebProtocolsModel\obj\Release\WebProtocolsModel.csproj.CoreCompileInputs.cache
+C:\Users\hp\source\repos\WebProtocols\WebProtocolsModel\obj\Release\WebProtocolsModel.dll
+C:\Users\hp\source\repos\WebProtocols\WebProtocolsModel\obj\Release\WebProtocolsModel.pdb

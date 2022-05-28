@@ -12,7 +12,7 @@ namespace Client.Clients
 		internal const char DgramSocketClientKey = 'd';
 		internal const char ProtocolVolatileWebClient = 'v';
 
-		internal static Client TryCreateClient(char key)
+		internal static IClient TryCreateClient(char key)
 		{
 			return key switch
 			{

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -10,7 +11,9 @@ namespace Client.Clients.DeliveryConfirmationManager
 {
 	public class DeliveryConfirmationHost : IDisposable
 	{
-		private static readonly TimeSpan RetryTimeSpan = TimeSpan.FromMilliseconds(50);
+		private TimeSpan _retryTimeSpan = TimeSpan.FromMilliseconds(50);
+
+		private readonly FixedSizedQueue<TimeSpan> _lastRtts;
 
 		private class BatchConfirmationInfo
 		{
@@ -46,6 +49,9 @@ namespace Client.Clients.DeliveryConfirmationManager
 							IsConfirmed = false,
 							LastRetryDateTimeUtc = DateTime.UtcNow
 						});
+
+			_lastRtts = new FixedSizedQueue<TimeSpan>(3);
+			_lastRtts.FillQueue(_retryTimeSpan);
 		}
 
 		public Task<int> RunHostAsync()
@@ -66,6 +72,7 @@ namespace Client.Clients.DeliveryConfirmationManager
 				if (confirmMessage != null)
 				{
 					ConfirmBatch(confirmMessage);
+					CalculateRetryTime(confirmMessage);
 				}
 				else
 				{
@@ -82,13 +89,20 @@ namespace Client.Clients.DeliveryConfirmationManager
 			}
 		}
 
+		private void CalculateRetryTime(ConfirmMessage confirmMessage)
+		{
+			var rtt = DateTime.UtcNow - _fileBatches[confirmMessage.BatchOrder].LastRetryDateTimeUtc;
+			_lastRtts.Enqueue(rtt);
+			_retryTimeSpan = _lastRtts.CalculateRtt();
+		}
+
 		private void RetrySendingBatches()
 		{
 			var unconfirmedBatches = _fileBatches.Values.Where(b => !b.IsConfirmed);
 
 			foreach (var batchInfo in unconfirmedBatches)
 			{
-				if (DateTime.UtcNow - batchInfo.LastRetryDateTimeUtc > RetryTimeSpan)
+				if (DateTime.UtcNow - batchInfo.LastRetryDateTimeUtc > _retryTimeSpan)
 				{
 					_retryCounter++;
 					RetrySendingBatch(batchInfo);
